@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro - Academia Naval{% endblock %}
+
+{% block content %}
+<div class="auth-section">
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-8 col-lg-6">
+                <div class="auth-card military-card">
+                    <div class="auth-header text-center mb-4">
+                        <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" width="60" height="60" class="mb-3">
+                        <h2 class="text-white">
+                            <span class="text-gold">Alistamento</span> Naval
+                        </h2>
+                        <p class="text-light-gray">Junte-se à elite da preparação militar</p>
+                    </div>
+                    
+                    <form method="POST" class="auth-form">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.username.id }}" class="form-label text-light-gray">
+                                    <i class="fas fa-user me-2"></i>Nome de usuário
+                                </label>
+                                {{ form.username(class="form-control military-input") }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.username.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.email.id }}" class="form-label text-light-gray">
+                                    <i class="fas fa-envelope me-2"></i>Email
+                                </label>
+                                {{ form.email(class="form-control military-input") }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.email.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.full_name.id }}" class="form-label text-light-gray">
+                                <i class="fas fa-id-card me-2"></i>Nome completo
+                            </label>
+                            {{ form.full_name(class="form-control military-input") }}
+                            {% if form.full_name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.full_name.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.rank.id }}" class="form-label text-light-gray">
+                                    <i class="fas fa-star me-2"></i>Patente atual
+                                </label>
+                                {{ form.rank(class="form-select military-input") }}
+                                {% if form.rank.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.rank.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.registration_number.id }}" class="form-label text-light-gray">
+                                    <i class="fas fa-hashtag me-2"></i>Matrícula militar
+                                    <span class="text-muted small">(opcional)</span>
+                                </label>
+                                {{ form.registration_number(class="form-control military-input", placeholder="Ex: 123456-7") }}
+                                {% if form.registration_number.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.registration_number.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.password.id }}" class="form-label text-light-gray">
+                                    <i class="fas fa-lock me-2"></i>Senha
+                                </label>
+                                <div class="input-group">
+                                    {{ form.password(class="form-control military-input", id="passwordInput") }}
+                                    <button class="btn btn-outline-gold" type="button" id="togglePassword">
+                                        <i class="fas fa-eye" id="toggleIcon"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength mt-1">
+                                    <div class="progress" style="height: 3px;">
+                                        <div class="progress-bar" id="passwordStrength" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <small class="text-light-gray">Mínimo 8 caracteres</small>
+                                </div>
+                                {% if form.password.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.password.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.password2.id }}" class="form-label text-light-gray">
+                                    <i class="fas fa-lock me-2"></i>Confirmar senha
+                                </label>
+                                {{ form.password2(class="form-control military-input", id="password2Input") }}
+                                <div class="password-match mt-1" id="passwordMatch">
+                                    <small class="text-light-gray">As senhas devem ser iguais</small>
+                                </div>
+                                {% if form.password2.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.password2.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input military-checkbox" type="checkbox" id="acceptTerms" required>
+                                <label class="form-check-label text-light-gray" for="acceptTerms">
+                                    Aceito os <a href="#" class="text-gold">Termos de Serviço</a> e 
+                                    <a href="#" class="text-gold">Política de Privacidade</a>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-gold w-100 mb-3" id="submitBtn">
+                            <i class="fas fa-user-plus me-2"></i>Completar Alistamento
+                        </button>
+                    </form>
+                    
+                    <div class="auth-links text-center">
+                        <hr class="border-gold my-3">
+                        <p class="text-light-gray mb-2">Já possui conta?</p>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-gold w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Fazer Login
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Benefits Preview -->
+                <div class="benefits-preview military-card mt-3">
+                    <h6 class="text-gold mb-3">
+                        <i class="fas fa-gift me-2"></i>Benefícios do Alistamento
+                    </h6>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <i class="fas fa-medal text-gold mb-2"></i>
+                            <div class="small text-light-gray">Sistema de XP</div>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-trophy text-gold mb-2"></i>
+                            <div class="small text-light-gray">Ranking</div>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-comments text-gold mb-2"></i>
+                            <div class="small text-light-gray">Fórum</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Toggle password visibility
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordInput = document.getElementById('passwordInput');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+});
+
+// Password strength indicator
+document.getElementById('passwordInput').addEventListener('input', function() {
+    const password = this.value;
+    const strengthBar = document.getElementById('passwordStrength');
+    let strength = 0;
+    
+    // Calculate strength
+    if (password.length >= 8) strength += 25;
+    if (/[a-z]/.test(password)) strength += 25;
+    if (/[A-Z]/.test(password)) strength += 25;
+    if (/[0-9]/.test(password)) strength += 25;
+    
+    // Update bar
+    strengthBar.style.width = strength + '%';
+    
+    if (strength < 50) {
+        strengthBar.className = 'progress-bar bg-danger';
+    } else if (strength < 75) {
+        strengthBar.className = 'progress-bar bg-warning';
+    } else {
+        strengthBar.className = 'progress-bar bg-success';
+    }
+});
+
+// Password match validation
+document.getElementById('password2Input').addEventListener('input', function() {
+    const password = document.getElementById('passwordInput').value;
+    const confirmPassword = this.value;
+    const matchDiv = document.getElementById('passwordMatch');
+    
+    if (confirmPassword.length > 0) {
+        if (password === confirmPassword) {
+            matchDiv.innerHTML = '<small class="text-success"><i class="fas fa-check me-1"></i>Senhas coincidem</small>';
+        } else {
+            matchDiv.innerHTML = '<small class="text-danger"><i class="fas fa-times me-1"></i>Senhas não coincidem</small>';
+        }
+    } else {
+        matchDiv.innerHTML = '<small class="text-light-gray">As senhas devem ser iguais</small>';
+    }
+});
+
+// Form submission
+document.querySelector('.auth-form').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    const acceptTerms = document.getElementById('acceptTerms');
+    
+    if (!acceptTerms.checked) {
+        e.preventDefault();
+        alert('Você deve aceitar os termos de serviço para continuar.');
+        return;
+    }
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processando...';
+    submitBtn.disabled = true;
+});
+
+// Auto-focus on username field
+document.addEventListener('DOMContentLoaded', function() {
+    const usernameInput = document.getElementById('{{ form.username.id }}');
+    if (usernameInput) {
+        usernameInput.focus();
+    }
+});
+</script>
+{% endblock %}

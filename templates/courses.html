@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %}Cursos - Academia Naval{% endblock %}
+
+{% block content %}
+<div class="courses-section">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header mb-4">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h1 class="text-white mb-2">
+                        <i class="fas fa-graduation-cap me-3"></i>Cursos de <span class="text-gold">Preparação Militar</span>
+                    </h1>
+                    <p class="text-light-gray lead">Escolha sua especialização e inicie sua jornada rumo à aprovação</p>
+                </div>
+                <div class="col-auto">
+                    <div class="course-stats military-card p-3">
+                        <div class="text-center">
+                            <h4 class="text-gold mb-1">{{ courses.total }}</h4>
+                            <small class="text-light-gray">Cursos Disponíveis</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section mb-4">
+            <div class="military-card">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h6 class="text-gold mb-3">
+                            <i class="fas fa-filter me-2"></i>Filtros
+                        </h6>
+                        <form method="GET" class="filter-form">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <select name="category" class="form-select military-input" onchange="this.form.submit()">
+                                        <option value="">Todas as categorias</option>
+                                        {% for category in categories %}
+                                            {% if category[0] %}
+                                            <option value="{{ category[0] }}" {% if selected_category == category[0] %}selected{% endif %}>
+                                                {{ category[0].replace('_', ' ').title() }}
+                                            </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <select name="level" class="form-select military-input" onchange="this.form.submit()">
+                                        <option value="">Todos os níveis</option>
+                                        <option value="beginner">Iniciante</option>
+                                        <option value="intermediate">Intermediário</option>
+                                        <option value="advanced">Avançado</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="filter-stats">
+                            {% if selected_category %}
+                            <span class="badge bg-gold text-dark me-2">
+                                <i class="fas fa-tag me-1"></i>{{ selected_category.replace('_', ' ').title() }}
+                                <a href="{{ url_for('main.courses') }}" class="text-dark ms-1">×</a>
+                            </span>
+                            {% endif %}
+                            <span class="text-light-gray small">{{ courses.total }} resultado(s)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Grid -->
+        <div class="courses-grid">
+            {% if courses.items %}
+                <div class="row g-4">
+                    {% for course in courses.items %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="course-card military-card h-100">
+                            <div class="course-header">
+                                <div class="course-badges mb-2">
+                                    <span class="badge bg-military-red">{{ course.category.replace('_', ' ').title() }}</span>
+                                    <span class="badge bg-info">{{ course.level.title() }}</span>
+                                </div>
+                                <h5 class="course-title text-white mb-2">{{ course.title }}</h5>
+                                <p class="course-description text-light-gray small">{{ course.description[:120] }}...</p>
+                            </div>
+                            
+                            <div class="course-meta mb-3">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <i class="fas fa-clock text-gold"></i>
+                                        <div class="text-light-gray small">{{ course.duration_hours }}h</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <i class="fas fa-book text-gold"></i>
+                                        <div class="text-light-gray small">{{ course.lessons|length }} aulas</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <i class="fas fa-question-circle text-gold"></i>
+                                        <div class="text-light-gray small">{{ course.quizzes|length }} quizzes</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="course-price mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-light-gray">Investimento:</span>
+                                    <span class="price text-gold h5 mb-0">R$ {{ "%.2f"|format(course.price) }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="course-enrollment">
+                                {% if current_user.is_authenticated %}
+                                    {% if course in current_user.enrolled_courses %}
+                                        <a href="{{ url_for('main.course_detail', course_id=course.id) }}" 
+                                           class="btn btn-success w-100">
+                                            <i class="fas fa-play me-2"></i>Acessar Curso
+                                        </a>
+                                    {% else %}
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ url_for('main.course_detail', course_id=course.id) }}" 
+                                               class="btn btn-outline-gold">
+                                                <i class="fas fa-info-circle me-2"></i>Ver Detalhes
+                                            </a>
+                                            <a href="{{ url_for('payment.payment_page', course_id=course.id) }}" 
+                                               class="btn btn-gold">
+                                                <i class="fas fa-shopping-cart me-2"></i>Matricular
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ url_for('main.course_detail', course_id=course.id) }}" 
+                                           class="btn btn-outline-gold">
+                                            <i class="fas fa-info-circle me-2"></i>Ver Detalhes
+                                        </a>
+                                        <a href="{{ url_for('auth.login') }}" class="btn btn-gold">
+                                            <i class="fas fa-sign-in-alt me-2"></i>Login para Matricular
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if courses.pages > 1 %}
+                <div class="pagination-section mt-5">
+                    <nav aria-label="Course pagination">
+                        <ul class="pagination justify-content-center military-pagination">
+                            {% if courses.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('main.courses', page=courses.prev_num, category=selected_category) }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in courses.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != courses.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('main.courses', page=page_num, category=selected_category) }}">
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                    {% endif %}
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if courses.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('main.courses', page=courses.next_num, category=selected_category) }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            {% else %}
+                <!-- Empty State -->
+                <div class="empty-state text-center py-5">
+                    <div class="military-card">
+                        <i class="fas fa-search fa-4x text-dark-gray mb-4"></i>
+                        <h3 class="text-light-gray mb-3">Nenhum curso encontrado</h3>
+                        <p class="text-light-gray mb-4">
+                            {% if selected_category %}
+                                Não encontramos cursos na categoria "{{ selected_category.replace('_', ' ').title() }}".
+                            {% else %}
+                                Nenhum curso está disponível no momento.
+                            {% endif %}
+                        </p>
+                        {% if selected_category %}
+                        <a href="{{ url_for('main.courses') }}" class="btn btn-gold">
+                            <i class="fas fa-list me-2"></i>Ver Todos os Cursos
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Enrollment Modal -->
+<div class="modal fade" id="quickEnrollModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content military-modal">
+            <div class="modal-header border-bottom border-gold">
+                <h5 class="modal-title text-gold">
+                    <i class="fas fa-rocket me-2"></i>Matrícula Rápida
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-light-gray">
+                    Inicie sua preparação agora mesmo! O pagamento via PIX é instantâneo e você terá acesso imediato ao curso.
+                </p>
+                <div class="benefits-list">
+                    <div class="benefit-item d-flex align-items-center mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span class="text-light-gray">Acesso vitalício ao conteúdo</span>
+                    </div>
+                    <div class="benefit-item d-flex align-items-center mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span class="text-light-gray">Suporte direto com professores</span>
+                    </div>
+                    <div class="benefit-item d-flex align-items-center mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span class="text-light-gray">Certificado de conclusão</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top border-gold">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-gold" id="proceedPayment">
+                    <i class="fas fa-credit-card me-2"></i>Prosseguir com Pagamento
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Course filtering
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit form on filter changes
+    const filterSelects = document.querySelectorAll('.filter-form select');
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            this.form.submit();
+        });
+    });
+});
+
+// Quick enrollment
+function showQuickEnroll(courseId, courseTitle, coursePrice) {
+    const modal = new bootstrap.Modal(document.getElementById('quickEnrollModal'));
+    document.querySelector('#quickEnrollModal .modal-title').innerHTML = 
+        `<i class="fas fa-rocket me-2"></i>Matricular em: ${courseTitle}`;
+    
+    document.getElementById('proceedPayment').onclick = function() {
+        window.location.href = `/payment/course/${courseId}`;
+    };
+    
+    modal.show();
+}
+
+// Course card animations
+const courseCards = document.querySelectorAll('.course-card');
+courseCards.forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px)';
+        this.style.transition = 'transform 0.3s ease';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+    });
+});
+</script>
+{% endblock %}

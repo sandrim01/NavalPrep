@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Academia Naval{% endblock %}
+
+{% block content %}
+<div class="dashboard-section">
+    <div class="container">
+        <!-- Welcome Header -->
+        <div class="dashboard-header mb-4">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h1 class="text-white mb-2">
+                        Centro de Comando, <span class="text-gold">{{ current_user.get_military_level() }} {{ current_user.username }}</span>
+                    </h1>
+                    <p class="text-light-gray lead">
+                        {% if current_user.is_active %}
+                            Missão ativa - Continue sua preparação militar
+                        {% else %}
+                            Aguardando ativação - Complete o pagamento para iniciar sua missão
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-auto">
+                    <div class="user-rank-display military-card p-3 text-center">
+                        <div class="rank-icon mb-2">
+                            <img src="{{ url_for('static', filename='assets/military-badge.svg') }}" alt="Badge" width="40" height="40">
+                        </div>
+                        <div class="rank-info">
+                            <h5 class="text-gold mb-1">{{ current_user.get_military_level() }}</h5>
+                            <div class="text-light-gray small">Nível {{ current_user.level }}</div>
+                            <div class="xp-display text-white">{{ current_user.xp }} XP</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if not current_user.is_active %}
+        <!-- Activation Notice -->
+        <div class="alert alert-warning military-alert mb-4" role="alert">
+            <h5 class="alert-heading">
+                <i class="fas fa-exclamation-triangle me-2"></i>Conta Pendente de Ativação
+            </h5>
+            <p>Para ter acesso completo aos cursos e funcionalidades, é necessário realizar o pagamento de um curso.</p>
+            <hr>
+            <a href="{{ url_for('main.courses') }}" class="btn btn-gold">
+                <i class="fas fa-shopping-cart me-2"></i>Ver Cursos Disponíveis
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Quick Stats -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card military-card text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-graduation-cap fa-2x text-gold"></i>
+                    </div>
+                    <h3 class="text-white">{{ total_courses }}</h3>
+                    <p class="text-light-gray mb-0">Cursos Matriculados</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card military-card text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                    </div>
+                    <h3 class="text-white">{{ completed_courses }}</h3>
+                    <p class="text-light-gray mb-0">Cursos Concluídos</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card military-card text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-trophy fa-2x text-gold"></i>
+                    </div>
+                    <h3 class="text-white">{{ achievements|length }}</h3>
+                    <p class="text-light-gray mb-0">Conquistas</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card military-card text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-medal fa-2x text-military-red"></i>
+                    </div>
+                    <h3 class="text-white">{{ recent_attempts|length }}</h3>
+                    <p class="text-light-gray mb-0">Quizzes Realizados</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- XP Progress -->
+        <div class="xp-progress-section mb-4">
+            <div class="military-card">
+                <h5 class="text-gold mb-3">
+                    <i class="fas fa-chart-line me-2"></i>Progresso de Experiência
+                </h5>
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="progress-info mb-2">
+                            <span class="text-light-gray">Próximo nível: {{ current_user.level + 1 }}</span>
+                            <span class="text-gold float-end">{{ current_user.get_progress_to_next_level()|round|int }}%</span>
+                        </div>
+                        <div class="progress military-progress">
+                            <div class="progress-bar bg-gold" role="progressbar" 
+                                 style="width: {{ current_user.get_progress_to_next_level() }}%"
+                                 aria-valuenow="{{ current_user.get_progress_to_next_level() }}" 
+                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                        <div class="xp-details mt-2 d-flex justify-content-between">
+                            <span class="text-light-gray small">XP: {{ current_user.xp }}</span>
+                            <span class="text-light-gray small">Próximo: {{ (current_user.level * 150) }} XP</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <canvas id="xpChart" width="120" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Enrolled Courses -->
+            <div class="col-lg-8">
+                <div class="enrolled-courses military-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-gold mb-0">
+                            <i class="fas fa-book-open me-2"></i>Meus Cursos
+                        </h5>
+                        <a href="{{ url_for('main.courses') }}" class="btn btn-outline-gold btn-sm">
+                            <i class="fas fa-plus me-1"></i>Adicionar Curso
+                        </a>
+                    </div>
+                    
+                    {% if enrolled_courses %}
+                        <div class="course-list">
+                            {% for course in enrolled_courses %}
+                            <div class="course-item border-bottom border-dark-gray py-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <h6 class="text-white mb-1">{{ course.title }}</h6>
+                                        <p class="text-light-gray small mb-0">{{ course.category.title() }}</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="progress-circle">
+                                            <span class="progress-text">75%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 text-end">
+                                        <a href="{{ url_for('main.course_detail', course_id=course.id) }}" 
+                                           class="btn btn-outline-gold btn-sm">
+                                            <i class="fas fa-play me-1"></i>Continuar
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state text-center py-4">
+                            <i class="fas fa-graduation-cap fa-3x text-dark-gray mb-3"></i>
+                            <h6 class="text-light-gray">Nenhum curso matriculado</h6>
+                            <p class="text-light-gray small">Escolha um curso para iniciar sua preparação</p>
+                            <a href="{{ url_for('main.courses') }}" class="btn btn-gold">
+                                <i class="fas fa-search me-2"></i>Explorar Cursos
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Achievements & Recent Activity -->
+            <div class="col-lg-4">
+                <!-- Achievements -->
+                <div class="achievements military-card mb-4">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-trophy me-2"></i>Conquistas Recentes
+                    </h5>
+                    
+                    {% if achievements %}
+                        <div class="achievement-list">
+                            {% for achievement in achievements[:5] %}
+                            <div class="achievement-item d-flex align-items-center mb-2">
+                                <div class="achievement-badge me-3" style="color: {{ achievement.badge_color }}">
+                                    {{ achievement.icon }}
+                                </div>
+                                <div class="achievement-info flex-grow-1">
+                                    <h6 class="text-white mb-0 small">{{ achievement.name }}</h6>
+                                    <p class="text-light-gray small mb-0">+{{ achievement.xp_reward }} XP</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-achievements text-center">
+                            <i class="fas fa-medal fa-2x text-dark-gray mb-2"></i>
+                            <p class="text-light-gray small">Complete desafios para ganhar conquistas</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Recent Quiz Activity -->
+                <div class="recent-activity military-card">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-clock me-2"></i>Atividade Recente
+                    </h5>
+                    
+                    {% if recent_attempts %}
+                        <div class="activity-list">
+                            {% for attempt in recent_attempts %}
+                            <div class="activity-item d-flex align-items-center mb-3">
+                                <div class="activity-icon me-3">
+                                    {% if attempt.score >= 70 %}
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    {% else %}
+                                        <i class="fas fa-times-circle text-danger"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="activity-info flex-grow-1">
+                                    <h6 class="text-white mb-0 small">{{ attempt.quiz.title }}</h6>
+                                    <p class="text-light-gray small mb-0">
+                                        Nota: {{ attempt.score|round|int }}% - 
+                                        {{ attempt.completed_at.strftime('%d/%m %H:%M') }}
+                                    </p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-activity text-center">
+                            <i class="fas fa-clipboard-list fa-2x text-dark-gray mb-2"></i>
+                            <p class="text-light-gray small">Nenhuma atividade recente</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// XP Progress Chart
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('xpChart').getContext('2d');
+    const progress = {{ current_user.get_progress_to_next_level() }};
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [progress, 100 - progress],
+                backgroundColor: ['#D4AF37', '#2A2A2A'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    
+    // Add text in center
+    const centerText = document.createElement('div');
+    centerText.style.position = 'absolute';
+    centerText.style.top = '50%';
+    centerText.style.left = '50%';
+    centerText.style.transform = 'translate(-50%, -50%)';
+    centerText.style.color = '#D4AF37';
+    centerText.style.fontWeight = 'bold';
+    centerText.innerHTML = `${Math.round(progress)}%`;
+    ctx.canvas.parentElement.style.position = 'relative';
+    ctx.canvas.parentElement.appendChild(centerText);
+});
+
+// Auto-refresh user progress every 30 seconds
+setInterval(function() {
+    fetch('/api/user-progress')
+        .then(response => response.json())
+        .then(data => {
+            // Update XP display
+            document.querySelector('.xp-display').textContent = data.xp + ' XP';
+            
+            // Update progress bar
+            const progressBar = document.querySelector('.progress-bar');
+            progressBar.style.width = data.progress_to_next + '%';
+            progressBar.setAttribute('aria-valuenow', data.progress_to_next);
+            
+            // Update percentage text
+            document.querySelector('.float-end').textContent = Math.round(data.progress_to_next) + '%';
+        })
+        .catch(error => console.error('Error updating progress:', error));
+}, 30000);
+</script>
+{% endblock %}

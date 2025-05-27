@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+
+{% block title %}{{ quiz.title }} - Academia Naval{% endblock %}
+
+{% block content %}
+<div class="quiz-section">
+    <div class="container">
+        <!-- Quiz Header -->
+        <div class="quiz-header mb-4">
+            <div class="military-card">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="quiz-breadcrumb mb-2">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item">
+                                        <a href="{{ url_for('main.course_detail', course_id=quiz.course_id) }}" class="text-gold">
+                                            {{ quiz.course.title }}
+                                        </a>
+                                    </li>
+                                    <li class="breadcrumb-item active text-light-gray">{{ quiz.title }}</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <h1 class="text-white mb-2">{{ quiz.title }}</h1>
+                        {% if quiz.description %}
+                        <p class="text-light-gray">{{ quiz.description }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <div class="quiz-timer-card military-card border border-military-red">
+                            <div class="timer-display text-center">
+                                <h4 class="text-military-red mb-1" id="timerDisplay">{{ quiz.time_limit_minutes }}:00</h4>
+                                <small class="text-light-gray">Tempo restante</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Info -->
+        <div class="quiz-info mb-4">
+            <div class="military-card">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="info-item">
+                            <i class="fas fa-question-circle fa-2x text-gold mb-2"></i>
+                            <h5 class="text-white">{{ quiz.questions|length }}</h5>
+                            <small class="text-light-gray">Questões</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-item">
+                            <i class="fas fa-clock fa-2x text-gold mb-2"></i>
+                            <h5 class="text-white">{{ quiz.time_limit_minutes }}</h5>
+                            <small class="text-light-gray">Minutos</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-item">
+                            <i class="fas fa-target fa-2x text-gold mb-2"></i>
+                            <h5 class="text-white">{{ quiz.passing_score }}%</h5>
+                            <small class="text-light-gray">Nota mínima</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-item">
+                            <i class="fas fa-trophy fa-2x text-gold mb-2"></i>
+                            <h5 class="text-white">{{ 20 + (quiz.passing_score // 10) }}</h5>
+                            <small class="text-light-gray">XP máximo</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Instructions -->
+        <div class="quiz-instructions mb-4">
+            <div class="alert alert-info military-alert" role="alert">
+                <h5 class="alert-heading">
+                    <i class="fas fa-info-circle me-2"></i>Instruções Importantes
+                </h5>
+                <ul class="mb-0">
+                    <li>Leia todas as questões com atenção antes de responder</li>
+                    <li>Você tem {{ quiz.time_limit_minutes }} minutos para completar o quiz</li>
+                    <li>É necessário {{ quiz.passing_score }}% de acerto para aprovação</li>
+                    <li>Cada questão tem apenas uma alternativa correta</li>
+                    <li>O quiz será enviado automaticamente quando o tempo acabar</li>
+                    <li>Ganhe XP baseado na sua performance!</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Quiz Form -->
+        <form id="quizForm" method="POST" action="{{ url_for('main.submit_quiz', quiz_id=quiz.id) }}">
+            {{ csrf_token() }}
+            
+            <!-- Progress Bar -->
+            <div class="quiz-progress mb-4">
+                <div class="military-card">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-light-gray">Progresso</span>
+                        <span class="text-gold" id="progressText">0 / {{ quiz.questions|length }}</span>
+                    </div>
+                    <div class="progress military-progress">
+                        <div class="progress-bar bg-gold" role="progressbar" style="width: 0%" id="progressBar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions -->
+            <div class="quiz-questions">
+                {% for question in quiz.questions|sort(attribute='order') %}
+                <div class="question-card military-card mb-4" data-question="{{ loop.index }}">
+                    <div class="question-header mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="text-gold mb-0">
+                                Questão {{ loop.index }} de {{ quiz.questions|length }}
+                            </h5>
+                            <span class="badge bg-military-red">{{ question.points }} {{ 'ponto' if question.points == 1 else 'pontos' }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="question-text mb-4">
+                        <p class="text-white h6">{{ question.text }}</p>
+                    </div>
+                    
+                    <div class="question-options">
+                        {% if question.question_type == 'multiple_choice' %}
+                            {% for option in question.options|sort(attribute='order') %}
+                            <div class="option-item mb-2">
+                                <div class="form-check military-radio">
+                                    <input class="form-check-input" type="radio" 
+                                           name="question_{{ question.id }}" 
+                                           value="{{ option.id }}" 
+                                           id="option_{{ option.id }}"
+                                           onchange="updateProgress()">
+                                    <label class="form-check-label text-light-gray" for="option_{{ option.id }}">
+                                        <span class="option-letter">{{ loop.index|alpha }}</span>
+                                        {{ option.text }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% elif question.question_type == 'true_false' %}
+                            <div class="option-item mb-2">
+                                <div class="form-check military-radio">
+                                    <input class="form-check-input" type="radio" 
+                                           name="question_{{ question.id }}" 
+                                           value="true" 
+                                           id="true_{{ question.id }}"
+                                           onchange="updateProgress()">
+                                    <label class="form-check-label text-light-gray" for="true_{{ question.id }}">
+                                        <span class="option-letter">V</span>
+                                        Verdadeiro
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="option-item mb-2">
+                                <div class="form-check military-radio">
+                                    <input class="form-check-input" type="radio" 
+                                           name="question_{{ question.id }}" 
+                                           value="false" 
+                                           id="false_{{ question.id }}"
+                                           onchange="updateProgress()">
+                                    <label class="form-check-label text-light-gray" for="false_{{ question.id }}">
+                                        <span class="option-letter">F</span>
+                                        Falso
+                                    </label>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Quiz Actions -->
+            <div class="quiz-actions military-card">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="completion-status">
+                            <span class="text-light-gray">Questões respondidas: </span>
+                            <span class="text-gold" id="answeredCount">0</span>
+                            <span class="text-light-gray"> de {{ quiz.questions|length }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <button type="button" class="btn btn-outline-light me-2" onclick="reviewAnswers()">
+                            <i class="fas fa-eye me-2"></i>Revisar Respostas
+                        </button>
+                        <button type="submit" class="btn btn-gold" id="submitBtn">
+                            <i class="fas fa-paper-plane me-2"></i>Finalizar Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content military-modal">
+            <div class="modal-header border-bottom border-gold">
+                <h5 class="modal-title text-gold">
+                    <i class="fas fa-eye me-2"></i>Revisar Respostas
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="reviewContent">
+                    <!-- Review content will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer border-top border-gold">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Continuar Editando</button>
+                <button type="button" class="btn btn-gold" onclick="submitQuiz()">
+                    <i class="fas fa-paper-plane me-2"></i>Finalizar Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content military-modal">
+            <div class="modal-header border-bottom border-military-red">
+                <h5 class="modal-title text-military-red">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Envio
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-light-gray">
+                    Tem certeza que deseja finalizar o quiz? Esta ação não pode ser desfeita.
+                </p>
+                <div class="final-summary">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <strong class="text-gold" id="finalAnswered">0</strong>
+                            <div class="text-light-gray small">Respondidas</div>
+                        </div>
+                        <div class="col-6">
+                            <strong class="text-military-red" id="finalUnanswered">{{ quiz.questions|length }}</strong>
+                            <div class="text-light-gray small">Em branco</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top border-military-red">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-military-red" onclick="forceSubmit()">
+                    <i class="fas fa-paper-plane me-2"></i>Finalizar Mesmo Assim
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+<script>
+// Quiz variables
+const totalQuestions = {{ quiz.questions|length }};
+const timeLimit = {{ quiz.time_limit_minutes }};
+let startTime = Date.now();
+let answeredQuestions = 0;
+
+// Initialize timer
+const timer = new QuizTimer(timeLimit, 'timerDisplay', function() {
+    // Auto-submit when time runs out
+    document.getElementById('quizForm').submit();
+});
+
+timer.start();
+
+// Alpha converter for option letters
+function alphaConverter() {
+    return function(index) {
+        return String.fromCharCode(64 + index); // A, B, C, D...
+    };
+}
+
+// Add alpha filter to template
+document.addEventListener('DOMContentLoaded', function() {
+    // Replace alpha placeholders
+    const alphaElements = document.querySelectorAll('.option-letter');
+    alphaElements.forEach((element, index) => {
+        const questionCard = element.closest('.question-card');
+        const optionIndex = Array.from(questionCard.querySelectorAll('.option-letter')).indexOf(element) + 1;
+        element.textContent = String.fromCharCode(64 + optionIndex);
+    });
+});
+
+// Update progress
+function updateProgress() {
+    const answeredInputs = document.querySelectorAll('input[type="radio"]:checked');
+    answeredQuestions = answeredInputs.length;
+    
+    const progressPercent = (answeredQuestions / totalQuestions) * 100;
+    document.getElementById('progressBar').style.width = progressPercent + '%';
+    document.getElementById('progressText').textContent = `${answeredQuestions} / ${totalQuestions}`;
+    document.getElementById('answeredCount').textContent = answeredQuestions;
+    
+    // Update button state
+    const submitBtn = document.getElementById('submitBtn');
+    if (answeredQuestions === totalQuestions) {
+        submitBtn.classList.remove('btn-outline-gold');
+        submitBtn.classList.add('btn-gold');
+        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Finalizar Quiz';
+    } else {
+        submitBtn.classList.add('btn-outline-gold');
+        submitBtn.classList.remove('btn-gold');
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Finalizar Quiz';
+    }
+}
+
+// Review answers
+function reviewAnswers() {
+    const reviewContent = document.getElementById('reviewContent');
+    reviewContent.innerHTML = '';
+    
+    document.querySelectorAll('.question-card').forEach((card, index) => {
+        const questionNum = index + 1;
+        const selectedInput = card.querySelector('input[type="radio"]:checked');
+        const selectedLabel = selectedInput ? selectedInput.nextElementSibling.textContent.trim() : 'Não respondida';
+        
+        const reviewItem = document.createElement('div');
+        reviewItem.className = 'review-item border-bottom border-dark-gray py-2';
+        reviewItem.innerHTML = `
+            <div class="d-flex justify-content-between">
+                <span class="text-light-gray">Questão ${questionNum}:</span>
+                <span class="${selectedInput ? 'text-gold' : 'text-military-red'}">${selectedLabel}</span>
+            </div>
+        `;
+        reviewContent.appendChild(reviewItem);
+    });
+    
+    const modal = new bootstrap.Modal(document.getElementById('reviewModal'));
+    modal.show();
+}
+
+// Submit quiz with confirmation
+document.getElementById('quizForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (answeredQuestions < totalQuestions) {
+        document.getElementById('finalAnswered').textContent = answeredQuestions;
+        document.getElementById('finalUnanswered').textContent = totalQuestions - answeredQuestions;
+        
+        const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        modal.show();
+    } else {
+        submitQuiz();
+    }
+});
+
+function submitQuiz() {
+    timer.stop();
+    document.getElementById('quizForm').submit();
+}
+
+function forceSubmit() {
+    timer.stop();
+    document.getElementById('quizForm').submit();
+}
+
+// Prevent accidental page leave
+window.addEventListener('beforeunload', function(e) {
+    if (answeredQuestions > 0) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+
+// Auto-save answers (optional feature)
+setInterval(function() {
+    // Could implement auto-save functionality here
+    console.log('Auto-save checkpoint');
+}, 30000);
+
+// Initialize
+updateProgress();
+</script>
+{% endblock %}

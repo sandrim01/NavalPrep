@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }} - Academia Naval{% endblock %}
+
+{% block content %}
+<div class="course-detail-section">
+    <div class="container">
+        <!-- Course Header -->
+        <div class="course-header mb-4">
+            <div class="military-card">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="course-breadcrumb mb-3">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item">
+                                        <a href="{{ url_for('main.courses') }}" class="text-gold">Cursos</a>
+                                    </li>
+                                    <li class="breadcrumb-item">
+                                        <a href="{{ url_for('main.courses', category=course.category) }}" class="text-gold">
+                                            {{ course.category.replace('_', ' ').title() }}
+                                        </a>
+                                    </li>
+                                    <li class="breadcrumb-item active text-light-gray">{{ course.title }}</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        
+                        <h1 class="text-white mb-3">{{ course.title }}</h1>
+                        <p class="text-light-gray lead mb-3">{{ course.description }}</p>
+                        
+                        <div class="course-badges">
+                            <span class="badge bg-military-red me-2">{{ course.category.replace('_', ' ').title() }}</span>
+                            <span class="badge bg-info me-2">{{ course.level.title() }}</span>
+                            <span class="badge bg-success">{{ course.duration_hours }} horas</span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="course-enrollment-card military-card border border-gold">
+                            <div class="enrollment-header text-center mb-3">
+                                <h3 class="text-gold mb-1">R$ {{ "%.2f"|format(course.price) }}</h3>
+                                <p class="text-light-gray small mb-0">Pagamento único - Acesso vitalício</p>
+                            </div>
+                            
+                            <div class="course-stats mb-3">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <i class="fas fa-play-circle text-gold"></i>
+                                        <div class="text-light-gray small">{{ course.lessons|length }} Aulas</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <i class="fas fa-clock text-gold"></i>
+                                        <div class="text-light-gray small">{{ course.duration_hours }}h</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <i class="fas fa-certificate text-gold"></i>
+                                        <div class="text-light-gray small">Certificado</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="enrollment-actions">
+                                {% if current_user.is_authenticated %}
+                                    {% if is_enrolled %}
+                                        <button class="btn btn-success w-100 mb-2" disabled>
+                                            <i class="fas fa-check me-2"></i>Já Matriculado
+                                        </button>
+                                        {% if current_user.is_active %}
+                                        <a href="#course-content" class="btn btn-gold w-100">
+                                            <i class="fas fa-play me-2"></i>Acessar Conteúdo
+                                        </a>
+                                        {% else %}
+                                        <div class="alert alert-warning mt-2" role="alert">
+                                            <small>Ative sua conta para acessar o conteúdo</small>
+                                        </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <a href="{{ url_for('payment.payment_page', course_id=course.id) }}" 
+                                           class="btn btn-gold w-100 mb-2">
+                                            <i class="fas fa-shopping-cart me-2"></i>Matricular Agora
+                                        </a>
+                                        <div class="enrollment-benefits">
+                                            <small class="text-light-gray">✓ Acesso imediato via PIX</small><br>
+                                            <small class="text-light-gray">✓ Suporte do professor</small><br>
+                                            <small class="text-light-gray">✓ Atualizações incluídas</small>
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="{{ url_for('auth.register') }}" class="btn btn-gold w-100 mb-2">
+                                        <i class="fas fa-user-plus me-2"></i>Criar Conta e Matricular
+                                    </a>
+                                    <div class="text-center">
+                                        <small class="text-light-gray">
+                                            Já tem conta? 
+                                            <a href="{{ url_for('auth.login') }}" class="text-gold">Faça login</a>
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Content -->
+        <div class="row g-4">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Course Overview -->
+                <div class="course-overview military-card mb-4">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-info-circle me-2"></i>Sobre este Curso
+                    </h5>
+                    <div class="overview-content text-light-gray">
+                        <p>{{ course.description }}</p>
+                        
+                        <h6 class="text-white mt-4 mb-2">O que você vai aprender:</h6>
+                        <ul class="learning-objectives">
+                            <li>Conceitos fundamentais da disciplina</li>
+                            <li>Técnicas de resolução de problemas</li>
+                            <li>Estratégias para provas militares</li>
+                            <li>Exercícios práticos e simulados</li>
+                            <li>Dicas de professores experientes</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Course Curriculum -->
+                <div class="course-curriculum military-card mb-4" id="course-content">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-list me-2"></i>Conteúdo do Curso
+                    </h5>
+                    
+                    {% if course.lessons %}
+                        <div class="curriculum-list">
+                            {% for lesson in course.lessons|sort(attribute='order') %}
+                            <div class="curriculum-item">
+                                <div class="lesson-header d-flex justify-content-between align-items-center" 
+                                     data-bs-toggle="collapse" data-bs-target="#lesson{{ lesson.id }}">
+                                    <div class="lesson-info">
+                                        <h6 class="text-white mb-1">
+                                            <i class="fas fa-play-circle me-2"></i>{{ lesson.title }}
+                                        </h6>
+                                        {% if lesson.duration_minutes %}
+                                        <small class="text-light-gray">{{ lesson.duration_minutes }} minutos</small>
+                                        {% endif %}
+                                    </div>
+                                    <div class="lesson-actions">
+                                        {% if current_user.is_authenticated and is_enrolled and current_user.is_active %}
+                                            <button class="btn btn-outline-gold btn-sm">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        {% else %}
+                                            <i class="fas fa-lock text-light-gray"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                {% if current_user.is_authenticated and is_enrolled and current_user.is_active %}
+                                <div class="collapse lesson-content" id="lesson{{ lesson.id }}">
+                                    <div class="lesson-body p-3 border-start border-gold ms-3">
+                                        {% if lesson.content %}
+                                        <p class="text-light-gray">{{ lesson.content }}</p>
+                                        {% endif %}
+                                        
+                                        {% if lesson.video_url %}
+                                        <div class="video-container mb-3">
+                                            <iframe src="{{ lesson.video_url }}" 
+                                                    class="w-100" height="315" 
+                                                    allowfullscreen></iframe>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if lesson.pdf_file %}
+                                        <div class="pdf-download">
+                                            <a href="{{ url_for('main.uploaded_file', filename=lesson.pdf_file) }}" 
+                                               class="btn btn-outline-gold btn-sm" target="_blank">
+                                                <i class="fas fa-file-pdf me-2"></i>Baixar Material (PDF)
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-curriculum text-center py-4">
+                            <i class="fas fa-chalkboard-teacher fa-3x text-dark-gray mb-3"></i>
+                            <h6 class="text-light-gray">Conteúdo em preparação</h6>
+                            <p class="text-light-gray small">As aulas serão adicionadas em breve</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Course Quizzes -->
+                <div class="course-quizzes military-card">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-question-circle me-2"></i>Avaliações e Simulados
+                    </h5>
+                    
+                    {% if course.quizzes %}
+                        <div class="quiz-list">
+                            {% for quiz in course.quizzes %}
+                            <div class="quiz-item border-bottom border-dark-gray py-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h6 class="text-white mb-1">{{ quiz.title }}</h6>
+                                        <p class="text-light-gray small mb-1">{{ quiz.description or 'Teste seus conhecimentos' }}</p>
+                                        <div class="quiz-meta">
+                                            <span class="badge bg-info me-2">{{ quiz.questions|length }} questões</span>
+                                            <span class="badge bg-warning text-dark me-2">{{ quiz.time_limit_minutes }} min</span>
+                                            <span class="badge bg-success">Nota mínima: {{ quiz.passing_score }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        {% if current_user.is_authenticated and is_enrolled and current_user.is_active %}
+                                            <a href="{{ url_for('main.quiz', quiz_id=quiz.id) }}" 
+                                               class="btn btn-gold">
+                                                <i class="fas fa-play me-2"></i>Iniciar
+                                            </a>
+                                        {% else %}
+                                            <button class="btn btn-outline-light" disabled>
+                                                <i class="fas fa-lock me-2"></i>Bloqueado
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-quizzes text-center py-4">
+                            <i class="fas fa-clipboard-check fa-3x text-dark-gray mb-3"></i>
+                            <h6 class="text-light-gray">Nenhuma avaliação disponível</h6>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Course Info -->
+                <div class="course-info military-card mb-4">
+                    <h6 class="text-gold mb-3">
+                        <i class="fas fa-info me-2"></i>Informações do Curso
+                    </h6>
+                    
+                    <div class="info-list">
+                        <div class="info-item d-flex justify-content-between mb-2">
+                            <span class="text-light-gray">Nível:</span>
+                            <span class="text-white">{{ course.level.title() }}</span>
+                        </div>
+                        <div class="info-item d-flex justify-content-between mb-2">
+                            <span class="text-light-gray">Duração:</span>
+                            <span class="text-white">{{ course.duration_hours }} horas</span>
+                        </div>
+                        <div class="info-item d-flex justify-content-between mb-2">
+                            <span class="text-light-gray">Aulas:</span>
+                            <span class="text-white">{{ course.lessons|length }}</span>
+                        </div>
+                        <div class="info-item d-flex justify-content-between mb-2">
+                            <span class="text-light-gray">Avaliações:</span>
+                            <span class="text-white">{{ course.quizzes|length }}</span>
+                        </div>
+                        <div class="info-item d-flex justify-content-between">
+                            <span class="text-light-gray">Criado em:</span>
+                            <span class="text-white">{{ course.created_at.strftime('%m/%Y') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prerequisites -->
+                <div class="prerequisites military-card mb-4">
+                    <h6 class="text-gold mb-3">
+                        <i class="fas fa-list-check me-2"></i>Pré-requisitos
+                    </h6>
+                    <ul class="prerequisite-list text-light-gray">
+                        <li>Ensino médio completo</li>
+                        <li>Conhecimentos básicos da disciplina</li>
+                        <li>Dedicação de pelo menos 2h por semana</li>
+                        <li>Acesso à internet estável</li>
+                    </ul>
+                </div>
+
+                <!-- Certificate Info -->
+                <div class="certificate-info military-card">
+                    <h6 class="text-gold mb-3">
+                        <i class="fas fa-certificate me-2"></i>Certificação
+                    </h6>
+                    <div class="certificate-content">
+                        <p class="text-light-gray small mb-3">
+                            Ao concluir este curso com aproveitamento mínimo de 70%, você receberá um certificado digital da Academia Naval.
+                        </p>
+                        <div class="certificate-benefits">
+                            <div class="benefit-item d-flex align-items-start mb-2">
+                                <i class="fas fa-check text-success me-2 mt-1"></i>
+                                <span class="text-light-gray small">Certificado digital verificável</span>
+                            </div>
+                            <div class="benefit-item d-flex align-items-start mb-2">
+                                <i class="fas fa-check text-success me-2 mt-1"></i>
+                                <span class="text-light-gray small">Válido em todo território nacional</span>
+                            </div>
+                            <div class="benefit-item d-flex align-items-start">
+                                <i class="fas fa-check text-success me-2 mt-1"></i>
+                                <span class="text-light-gray small">Reconhecido por instituições militares</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Course progress tracking
+document.addEventListener('DOMContentLoaded', function() {
+    // Track lesson views
+    const lessonButtons = document.querySelectorAll('.lesson-header');
+    lessonButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Track lesson interaction
+            console.log('Lesson accessed');
+        });
+    });
+    
+    // Smooth scroll to course content
+    const contentLinks = document.querySelectorAll('a[href="#course-content"]');
+    contentLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('course-content').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+});
+
+// Course enrollment tracking
+function trackEnrollmentClick() {
+    // Analytics tracking for enrollment button clicks
+    console.log('Enrollment button clicked');
+}
+</script>
+{% endblock %}

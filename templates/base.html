@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="military">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Plataforma educacional militar para preparação de concursos da Marinha do Brasil{% endblock %}">
+    <title>{% block title %}Academia Naval - Preparação Militar{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    {% block head %}{% endblock %}
+</head>
+<body class="military-theme">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark military-nav fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
+                <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" width="40" height="40" class="me-2">
+                <span class="fw-bold">Academia Naval</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">
+                            <i class="fas fa-home me-1"></i>Início
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.courses') }}">
+                            <i class="fas fa-graduation-cap me-1"></i>Cursos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.forum') }}">
+                            <i class="fas fa-comments me-1"></i>Fórum
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <div class="military-badge me-2">
+                                    <img src="{{ url_for('static', filename='assets/military-badge.svg') }}" alt="Badge" width="20" height="20">
+                                </div>
+                                <div class="user-info">
+                                    <div class="username">{{ current_user.username }}</div>
+                                    <div class="rank-level">{{ current_user.get_military_level() }} - Nv.{{ current_user.level }}</div>
+                                </div>
+                                <div class="xp-badge ms-2">{{ current_user.xp }} XP</div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end military-dropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('main.profile') }}">
+                                    <i class="fas fa-user me-2"></i>Perfil
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.dashboard') }}">
+                                    <i class="fas fa-chart-line me-2"></i>Progresso
+                                </a></li>
+                                {% if current_user.role.name in ['admin', 'professor'] %}
+                                <li><hr class="dropdown-divider"></li>
+                                {% if current_user.role.name == 'admin' %}
+                                <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">
+                                    <i class="fas fa-cog me-2"></i>Admin
+                                </a></li>
+                                {% endif %}
+                                {% if current_user.role.name in ['admin', 'professor'] %}
+                                <li><a class="dropdown-item" href="{{ url_for('professor.dashboard') }}">
+                                    <i class="fas fa-chalkboard-teacher me-2"></i>Professor
+                                </a></li>
+                                {% endif %}
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Entrar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-gold ms-2" href="{{ url_for('auth.register') }}">
+                                <i class="fas fa-user-plus me-1"></i>Cadastrar
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-5 pt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show military-alert" role="alert">
+                        {% if category == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif category == 'error' %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% elif category == 'warning' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="military-footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-anchor me-2"></i>Academia Naval
+                    </h5>
+                    <p class="text-light-gray">
+                        Plataforma educacional especializada na preparação de fuzileiros navais para concursos de Cabo e Sargento da Marinha do Brasil.
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <h6 class="text-gold mb-3">Cursos</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('main.courses') }}" class="footer-link">Matemática</a></li>
+                        <li><a href="{{ url_for('main.courses') }}" class="footer-link">Português</a></li>
+                        <li><a href="{{ url_for('main.courses') }}" class="footer-link">História Naval</a></li>
+                        <li><a href="{{ url_for('main.courses') }}" class="footer-link">Legislação</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h6 class="text-gold mb-3">Comunidade</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('main.forum') }}" class="footer-link">Fórum</a></li>
+                        <li><a href="#" class="footer-link">Ranking</a></li>
+                        <li><a href="#" class="footer-link">Conquistas</a></li>
+                        <li><a href="#" class="footer-link">Suporte</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h6 class="text-gold mb-3">Institucional</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="footer-link">Sobre</a></li>
+                        <li><a href="#" class="footer-link">Termos de Uso</a></li>
+                        <li><a href="#" class="footer-link">Privacidade</a></li>
+                        <li><a href="#" class="footer-link">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h6 class="text-gold mb-3">Segurança</h6>
+                    <div class="security-badges">
+                        <i class="fas fa-shield-alt text-success me-2"></i>
+                        <i class="fas fa-lock text-success me-2"></i>
+                        <i class="fas fa-certificate text-gold"></i>
+                    </div>
+                    <p class="small text-light-gray mt-2">
+                        Pagamentos seguros via PIX
+                    </p>
+                </div>
+            </div>
+            <hr class="border-gold">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0 text-light-gray">
+                        &copy; 2024 Academia Naval. Todos os direitos reservados.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-light-gray small">
+                        <i class="fas fa-flag-usa me-2"></i>
+                        Preparação militar de excelência
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/gamification.js') }}"></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

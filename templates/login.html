@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Academia Naval{% endblock %}
+
+{% block content %}
+<div class="auth-section">
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-6 col-lg-4">
+                <div class="auth-card military-card">
+                    <div class="auth-header text-center mb-4">
+                        <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" width="60" height="60" class="mb-3">
+                        <h2 class="text-white">
+                            <span class="text-gold">Acesso</span> Autorizado
+                        </h2>
+                        <p class="text-light-gray">Entre com suas credenciais de oficial</p>
+                    </div>
+                    
+                    <form method="POST" class="auth-form">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.email.id }}" class="form-label text-light-gray">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </label>
+                            {{ form.email(class="form-control military-input") }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.email.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.password.id }}" class="form-label text-light-gray">
+                                <i class="fas fa-lock me-2"></i>Senha
+                            </label>
+                            <div class="input-group">
+                                {{ form.password(class="form-control military-input", id="passwordInput") }}
+                                <button class="btn btn-outline-gold" type="button" id="togglePassword">
+                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.password.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.remember_me(class="form-check-input military-checkbox") }}
+                            <label class="form-check-label text-light-gray" for="{{ form.remember_me.id }}">
+                                Manter-me conectado
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-gold w-100 mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Entrar em Serviço
+                        </button>
+                    </form>
+                    
+                    <div class="auth-links text-center">
+                        <div class="mb-2">
+                            <a href="#" class="text-gold text-decoration-none">
+                                <i class="fas fa-key me-1"></i>Esqueci minha senha
+                            </a>
+                        </div>
+                        <hr class="border-gold my-3">
+                        <p class="text-light-gray mb-2">Novo recruta?</p>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-gold w-100">
+                            <i class="fas fa-user-plus me-2"></i>Alistar-se na Academia
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Security Note -->
+                <div class="security-note military-card mt-3">
+                    <div class="text-center">
+                        <i class="fas fa-shield-alt text-gold me-2"></i>
+                        <span class="text-light-gray small">
+                            Conexão segura e dados criptografados
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Toggle password visibility
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordInput = document.getElementById('passwordInput');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+});
+
+// Form validation feedback
+document.querySelector('.auth-form').addEventListener('submit', function(e) {
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Verificando...';
+    submitBtn.disabled = true;
+});
+
+// Auto-focus on email field
+document.addEventListener('DOMContentLoaded', function() {
+    const emailInput = document.getElementById('{{ form.email.id }}');
+    if (emailInput) {
+        emailInput.focus();
+    }
+});
+</script>
+{% endblock %}

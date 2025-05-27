@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block title %}Fórum - Academia Naval{% endblock %}
+
+{% block content %}
+<div class="forum-section">
+    <div class="container">
+        <!-- Forum Header -->
+        <div class="forum-header mb-4">
+            <div class="military-card">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h1 class="text-white mb-2">
+                            <i class="fas fa-comments me-3"></i>Fórum da <span class="text-gold">Academia Naval</span>
+                        </h1>
+                        <p class="text-light-gray lead">
+                            Comunidade de fuzileiros navais compartilhando conhecimento e experiências
+                        </p>
+                    </div>
+                    <div class="col-auto">
+                        {% if current_user.is_authenticated %}
+                        <button class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#newTopicModal">
+                            <i class="fas fa-plus me-2"></i>Novo Tópico
+                        </button>
+                        {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-gold">
+                            <i class="fas fa-sign-in-alt me-2"></i>Entrar para Participar
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forum Stats -->
+        <div class="forum-stats mb-4">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="stat-card military-card text-center">
+                        <i class="fas fa-folder fa-2x text-gold mb-2"></i>
+                        <h4 class="text-white">{{ categories|length }}</h4>
+                        <small class="text-light-gray">Categorias</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card military-card text-center">
+                        <i class="fas fa-comments fa-2x text-gold mb-2"></i>
+                        <h4 class="text-white">{{ total_topics or 0 }}</h4>
+                        <small class="text-light-gray">Tópicos</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card military-card text-center">
+                        <i class="fas fa-reply fa-2x text-gold mb-2"></i>
+                        <h4 class="text-white">{{ total_posts or 0 }}</h4>
+                        <small class="text-light-gray">Respostas</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card military-card text-center">
+                        <i class="fas fa-users fa-2x text-gold mb-2"></i>
+                        <h4 class="text-white">{{ active_users or 0 }}</h4>
+                        <small class="text-light-gray">Membros Ativos</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forum Categories -->
+        <div class="forum-categories">
+            <h4 class="text-gold mb-3">
+                <i class="fas fa-list me-2"></i>Categorias do Fórum
+            </h4>
+            
+            {% if categories %}
+                {% for category in categories %}
+                <div class="category-card military-card mb-3">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="category-icon">
+                                {% if category.name == 'Dúvidas Técnicas' %}
+                                    <i class="fas fa-question-circle fa-2x text-gold"></i>
+                                {% elif category.name == 'Estratégias de Prova' %}
+                                    <i class="fas fa-target fa-2x text-military-red"></i>
+                                {% elif category.name == 'Material Complementar' %}
+                                    <i class="fas fa-book fa-2x text-info"></i>
+                                {% elif category.name == 'Experiências' %}
+                                    <i class="fas fa-medal fa-2x text-success"></i>
+                                {% else %}
+                                    <i class="fas fa-folder fa-2x text-gold"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h5 class="text-white mb-1">
+                                <a href="{{ url_for('main.forum_category', category_id=category.id) }}" 
+                                   class="text-white text-decoration-none">
+                                    {{ category.name }}
+                                </a>
+                            </h5>
+                            <p class="text-light-gray mb-2">{{ category.description }}</p>
+                            
+                            <!-- Latest Topics Preview -->
+                            {% set latest_topics = category.topics[:3] %}
+                            {% if latest_topics %}
+                            <div class="latest-topics">
+                                <small class="text-light-gray">Últimos tópicos:</small>
+                                {% for topic in latest_topics %}
+                                <div class="topic-preview d-inline-block me-3">
+                                    <a href="{{ url_for('main.topic_detail', topic_id=topic.id) }}" 
+                                       class="text-gold text-decoration-none small">
+                                        {{ topic.title[:30] }}{% if topic.title|length > 30 %}...{% endif %}
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-auto">
+                            <div class="category-stats text-center">
+                                <h5 class="text-gold mb-0">{{ category.topics|length }}</h5>
+                                <small class="text-light-gray">tópicos</small>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{{ url_for('main.forum_category', category_id=category.id) }}" 
+                               class="btn btn-outline-gold">
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-forum text-center py-5">
+                    <div class="military-card">
+                        <i class="fas fa-comments fa-4x text-dark-gray mb-4"></i>
+                        <h4 class="text-light-gray mb-3">Fórum em Construção</h4>
+                        <p class="text-light-gray">
+                            As categorias do fórum serão criadas em breve. 
+                            Volte logo para participar das discussões!
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Forum Rules -->
+        <div class="forum-rules mt-5">
+            <div class="military-card">
+                <h5 class="text-gold mb-3">
+                    <i class="fas fa-shield-alt me-2"></i>Código de Conduta Militar
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="rule-item mb-3">
+                            <h6 class="text-white">
+                                <i class="fas fa-handshake text-success me-2"></i>Respeito Mútuo
+                            </h6>
+                            <p class="text-light-gray small">
+                                Trate todos os membros com respeito e cortesia, independente da patente ou experiência.
+                            </p>
+                        </div>
+                        <div class="rule-item mb-3">
+                            <h6 class="text-white">
+                                <i class="fas fa-bullseye text-gold me-2"></i>Conteúdo Relevante
+                            </h6>
+                            <p class="text-light-gray small">
+                                Mantenha as discussões focadas em preparação militar e concursos da Marinha.
+                            </p>
+                        </div>
+                        <div class="rule-item mb-3">
+                            <h6 class="text-white">
+                                <i class="fas fa-search text-info me-2"></i>Pesquise Antes de Postar
+                            </h6>
+                            <p class="text-light-gray small">
+                                Verifique se sua dúvida já não foi respondida em tópicos anteriores.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="rule-item mb-3">
+                            <h6 class="text-white">
+                                <i class="fas fa-ban text-danger me-2"></i>Proibido Spam
+                            </h6>
+                            <p class="text-light-gray small">
+                                Não faça postagens repetitivas ou irrelevantes para ganhar XP.
+                            </p>
+                        </div>
+                        <div class="rule-item mb-3">
+                            <h6 class="text-white">
+                                <i class="fas fa-user-secret text-warning me-2"></i>Informações Pessoais
+                            </h6>
+                            <p class="text-light-gray small">
+                                Não compartilhe dados pessoais ou informações sensíveis.
+                            </p>
+                        </div>
+                        <div class="rule-item mb-3">
+                            <h6 class="text-white">
+                                <i class="fas fa-trophy text-gold me-2"></i>Reconhecimento de Mérito
+                            </h6>
+                            <p class="text-light-gray small">
+                                Ganhe XP por contribuições úteis e respostas que ajudem outros membros.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Topic Modal -->
+{% if current_user.is_authenticated %}
+<div class="modal fade" id="newTopicModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content military-modal">
+            <div class="modal-header border-bottom border-gold">
+                <h5 class="modal-title text-gold">
+                    <i class="fas fa-plus me-2"></i>Criar Novo Tópico
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.create_topic') if 'create_topic' in main }}">
+                <div class="modal-body">
+                    {{ csrf_token() }}
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-light-gray">Categoria</label>
+                        <select name="category_id" class="form-select military-input" required>
+                            <option value="">Selecione uma categoria</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-light-gray">Título do tópico</label>
+                        <input type="text" name="title" class="form-control military-input" 
+                               placeholder="Ex: Dúvida sobre matemática para Cabo..." required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-light-gray">Conteúdo</label>
+                        <textarea name="content" class="form-control military-input" rows="6"
+                                  placeholder="Descreva sua dúvida ou compartilhe sua experiência..." required></textarea>
+                        <div class="form-text text-light-gray">
+                            Seja claro e detalhado para receber melhores respostas.
+                        </div>
+                    </div>
+                    
+                    <div class="topic-preview border border-gold rounded p-3" style="display: none;">
+                        <h6 class="text-gold">Prévia do tópico:</h6>
+                        <div id="previewContent" class="text-light-gray"></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-gold">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-outline-gold" onclick="previewTopic()">
+                        <i class="fas fa-eye me-2"></i>Prévia
+                    </button>
+                    <button type="submit" class="btn btn-gold">
+                        <i class="fas fa-paper-plane me-2"></i>Criar Tópico
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Topic preview
+function previewTopic() {
+    const title = document.querySelector('input[name="title"]').value;
+    const content = document.querySelector('textarea[name="content"]').value;
+    
+    if (title && content) {
+        const previewDiv = document.querySelector('.topic-preview');
+        const previewContent = document.getElementById('previewContent');
+        
+        previewContent.innerHTML = `
+            <h6 class="text-white">${title}</h6>
+            <p class="mb-0">${content.substring(0, 200)}${content.length > 200 ? '...' : ''}</p>
+        `;
+        
+        previewDiv.style.display = 'block';
+    }
+}
+
+// Real-time character count for content
+document.addEventListener('DOMContentLoaded', function() {
+    const contentTextarea = document.querySelector('textarea[name="content"]');
+    if (contentTextarea) {
+        const charCount = document.createElement('div');
+        charCount.className = 'text-end small text-light-gray mt-1';
+        charCount.textContent = '0 caracteres';
+        
+        contentTextarea.parentNode.appendChild(charCount);
+        
+        contentTextarea.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = `${count} caracteres`;
+            
+            if (count > 1000) {
+                charCount.classList.add('text-warning');
+            } else {
+                charCount.classList.remove('text-warning');
+            }
+        });
+    }
+});
+
+// Auto-save draft functionality
+let draftTimer;
+function saveDraft() {
+    const title = document.querySelector('input[name="title"]')?.value;
+    const content = document.querySelector('textarea[name="content"]')?.value;
+    const categoryId = document.querySelector('select[name="category_id"]')?.value;
+    
+    if (title || content) {
+        localStorage.setItem('forum_draft', JSON.stringify({
+            title: title,
+            content: content,
+            categoryId: categoryId,
+            timestamp: Date.now()
+        }));
+    }
+}
+
+// Load draft on modal open
+document.getElementById('newTopicModal')?.addEventListener('shown.bs.modal', function() {
+    const draft = localStorage.getItem('forum_draft');
+    if (draft) {
+        const draftData = JSON.parse(draft);
+        // Only load if draft is less than 24 hours old
+        if (Date.now() - draftData.timestamp < 24 * 60 * 60 * 1000) {
+            if (confirm('Você tem um rascunho salvo. Deseja carregá-lo?')) {
+                document.querySelector('input[name="title"]').value = draftData.title || '';
+                document.querySelector('textarea[name="content"]').value = draftData.content || '';
+                document.querySelector('select[name="category_id"]').value = draftData.categoryId || '';
+            }
+        }
+    }
+});
+
+// Save draft every 30 seconds
+if (document.getElementById('newTopicModal')) {
+    setInterval(saveDraft, 30000);
+}
+
+// Clear draft on successful submission
+document.querySelector('form')?.addEventListener('submit', function() {
+    localStorage.removeItem('forum_draft');
+});
+</script>
+{% endblock %}

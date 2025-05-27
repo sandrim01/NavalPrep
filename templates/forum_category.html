@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} - Fórum - Academia Naval{% endblock %}
+
+{% block content %}
+<div class="forum-category-section">
+    <div class="container">
+        <!-- Category Header -->
+        <div class="category-header mb-4">
+            <div class="military-card">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <nav aria-label="breadcrumb" class="mb-2">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{{ url_for('main.forum') }}" class="text-gold">Fórum</a>
+                                </li>
+                                <li class="breadcrumb-item active text-light-gray">{{ category.name }}</li>
+                            </ol>
+                        </nav>
+                        <h1 class="text-white mb-2">
+                            {% if category.name == 'Dúvidas Técnicas' %}
+                                <i class="fas fa-question-circle me-3 text-gold"></i>
+                            {% elif category.name == 'Estratégias de Prova' %}
+                                <i class="fas fa-target me-3 text-military-red"></i>
+                            {% elif category.name == 'Material Complementar' %}
+                                <i class="fas fa-book me-3 text-info"></i>
+                            {% elif category.name == 'Experiências' %}
+                                <i class="fas fa-medal me-3 text-success"></i>
+                            {% else %}
+                                <i class="fas fa-folder me-3 text-gold"></i>
+                            {% endif %}
+                            {{ category.name }}
+                        </h1>
+                        <p class="text-light-gray">{{ category.description }}</p>
+                    </div>
+                    <div class="col-auto">
+                        {% if current_user.is_authenticated %}
+                        <button class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#newTopicModal">
+                            <i class="fas fa-plus me-2"></i>Novo Tópico
+                        </button>
+                        {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-gold">
+                            <i class="fas fa-sign-in-alt me-2"></i>Fazer Login
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Stats -->
+        <div class="category-stats mb-4">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="stat-card military-card text-center">
+                        <i class="fas fa-comments fa-2x text-gold mb-2"></i>
+                        <h4 class="text-white">{{ topics.total }}</h4>
+                        <small class="text-light-gray">Tópicos</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card military-card text-center">
+                        <i class="fas fa-reply fa-2x text-info mb-2"></i>
+                        <h4 class="text-white">{{ total_posts or 0 }}</h4>
+                        <small class="text-light-gray">Respostas</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card military-card text-center">
+                        <i class="fas fa-users fa-2x text-success mb-2"></i>
+                        <h4 class="text-white">{{ active_members or 0 }}</h4>
+                        <small class="text-light-gray">Participantes</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card military-card text-center">
+                        <i class="fas fa-thumbtack fa-2x text-military-red mb-2"></i>
+                        <h4 class="text-white">{{ pinned_count or 0 }}</h4>
+                        <small class="text-light-gray">Fixados</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic List -->
+        <div class="topic-list">
+            {% if topics.items %}
+                <!-- List Header -->
+                <div class="list-header military-card mb-3">
+                    <div class="row align-items-center">
+                        <div class="col-6">
+                            <h6 class="text-gold mb-0">Tópico</h6>
+                        </div>
+                        <div class="col-2 text-center d-none d-md-block">
+                            <h6 class="text-gold mb-0">Autor</h6>
+                        </div>
+                        <div class="col-2 text-center d-none d-md-block">
+                            <h6 class="text-gold mb-0">Respostas</h6>
+                        </div>
+                        <div class="col-2 text-center d-none d-md-block">
+                            <h6 class="text-gold mb-0">Última Atividade</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Topics -->
+                {% for topic in topics.items %}
+                <div class="topic-item military-card mb-2">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="topic-info">
+                                <div class="topic-status d-flex align-items-center mb-1">
+                                    {% if topic.is_pinned %}
+                                        <i class="fas fa-thumbtack text-military-red me-2" title="Tópico fixado"></i>
+                                    {% endif %}
+                                    {% if topic.is_locked %}
+                                        <i class="fas fa-lock text-warning me-2" title="Tópico bloqueado"></i>
+                                    {% else %}
+                                        <i class="fas fa-comment text-gold me-2"></i>
+                                    {% endif %}
+                                    
+                                    <h6 class="topic-title mb-0">
+                                        <a href="{{ url_for('main.topic_detail', topic_id=topic.id) }}" 
+                                           class="text-white text-decoration-none topic-link">
+                                            {{ topic.title }}
+                                        </a>
+                                    </h6>
+                                </div>
+                                
+                                <!-- Mobile meta info -->
+                                <div class="topic-meta d-md-none">
+                                    <small class="text-light-gray">
+                                        Por {{ topic.author.username }} • 
+                                        {{ topic.posts|length }} resposta{{ 's' if topic.posts|length != 1 else '' }} • 
+                                        {{ topic.updated_at.strftime('%d/%m %H:%M') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-2 text-center d-none d-md-block">
+                            <div class="author-info">
+                                <div class="author-name text-light-gray">{{ topic.author.username }}</div>
+                                <small class="author-rank text-gold">{{ topic.author.get_military_level() }}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-2 text-center d-none d-md-block">
+                            <div class="reply-count">
+                                <h6 class="text-white mb-0">{{ topic.posts|length }}</h6>
+                                <small class="text-light-gray">resposta{{ 's' if topic.posts|length != 1 else '' }}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-2 text-center d-none d-md-block">
+                            <div class="last-activity">
+                                <div class="activity-time text-light-gray">{{ topic.updated_at.strftime('%d/%m/%Y') }}</div>
+                                <small class="activity-time text-light-gray">{{ topic.updated_at.strftime('%H:%M') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Pagination -->
+                {% if topics.pages > 1 %}
+                <div class="pagination-section mt-4">
+                    <nav aria-label="Topic pagination">
+                        <ul class="pagination justify-content-center military-pagination">
+                            {% if topics.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('main.forum_category', category_id=category.id, page=topics.prev_num) }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in topics.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != topics.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('main.forum_category', category_id=category.id, page=page_num) }}">
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                    {% endif %}
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if topics.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('main.forum_category', category_id=category.id, page=topics.next_num) }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            {% else %}
+                <!-- Empty State -->
+                <div class="empty-topics text-center py-5">
+                    <div class="military-card">
+                        <i class="fas fa-comment-slash fa-4x text-dark-gray mb-4"></i>
+                        <h4 class="text-light-gray mb-3">Nenhum tópico ainda</h4>
+                        <p class="text-light-gray mb-4">
+                            Seja o primeiro a iniciar uma discussão nesta categoria!
+                        </p>
+                        {% if current_user.is_authenticated %}
+                        <button class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#newTopicModal">
+                            <i class="fas fa-plus me-2"></i>Criar Primeiro Tópico
+                        </button>
+                        {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-gold">
+                            <i class="fas fa-sign-in-alt me-2"></i>Fazer Login para Participar
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- New Topic Modal -->
+{% if current_user.is_authenticated %}
+<div class="modal fade" id="newTopicModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content military-modal">
+            <div class="modal-header border-bottom border-gold">
+                <h5 class="modal-title text-gold">
+                    <i class="fas fa-plus me-2"></i>Novo Tópico em {{ category.name }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.create_topic') if 'create_topic' in main }}">
+                <div class="modal-body">
+                    {{ csrf_token() }}
+                    <input type="hidden" name="category_id" value="{{ category.id }}">
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-light-gray">Título do tópico</label>
+                        <input type="text" name="title" class="form-control military-input" 
+                               placeholder="Ex: Como resolver questões de matemática básica?" required>
+                        <div class="form-text text-light-gray">
+                            Seja específico e descritivo no título.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-light-gray">Conteúdo</label>
+                        <textarea name="content" class="form-control military-input" rows="8"
+                                  placeholder="Descreva sua dúvida, compartilhe sua experiência ou material..." required></textarea>
+                        <div class="form-text text-light-gray">
+                            Forneça detalhes suficientes para que outros possam ajudar.
+                        </div>
+                    </div>
+                    
+                    <!-- Posting Guidelines -->
+                    <div class="posting-guidelines border border-gold rounded p-3 mb-3">
+                        <h6 class="text-gold mb-2">
+                            <i class="fas fa-lightbulb me-2"></i>Dicas para uma boa postagem:
+                        </h6>
+                        <ul class="text-light-gray small mb-0">
+                            <li>Use um título claro e específico</li>
+                            <li>Explique o contexto da sua dúvida</li>
+                            <li>Se possível, inclua exemplos</li>
+                            <li>Seja respeitoso com outros membros</li>
+                            <li>Agradeça quem te ajudar (+5 XP por post útil)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-gold">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-gold">
+                        <i class="fas fa-paper-plane me-2"></i>Criar Tópico
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Topic link hover effects
+document.addEventListener('DOMContentLoaded', function() {
+    const topicLinks = document.querySelectorAll('.topic-link');
+    topicLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            this.style.color = '#D4AF37';
+            this.style.transition = 'color 0.3s ease';
+        });
+        
+        link.addEventListener('mouseleave', function() {
+            this.style.color = '#FFFFFF';
+        });
+    });
+});
+
+// Real-time topic sorting (optional feature)
+function sortTopics(criteria) {
+    // Implementation for client-side sorting
+    console.log('Sorting by:', criteria);
+}
+
+// Mark topics as read (could be implemented with localStorage)
+function markAsRead(topicId) {
+    localStorage.setItem(`topic_read_${topicId}`, Date.now());
+}
+
+// Auto-refresh for new topics (every 2 minutes)
+setInterval(function() {
+    // Could implement real-time updates here
+    console.log('Checking for new topics...');
+}, 120000);
+</script>
+{% endblock %}

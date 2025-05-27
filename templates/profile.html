@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil - Academia Naval{% endblock %}
+
+{% block content %}
+<div class="profile-section">
+    <div class="container">
+        <div class="row">
+            <!-- Profile Header -->
+            <div class="col-12 mb-4">
+                <div class="profile-header military-card">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="profile-avatar">
+                                <img src="{{ url_for('static', filename='assets/military-badge.svg') }}" 
+                                     alt="Avatar" width="80" height="80" class="rounded-circle">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h2 class="text-white mb-1">{{ current_user.full_name or current_user.username }}</h2>
+                            <h5 class="text-gold mb-2">{{ current_user.get_military_level() }} - Nível {{ current_user.level }}</h5>
+                            <div class="profile-stats">
+                                <span class="badge bg-gold text-dark me-2">{{ current_user.xp }} XP</span>
+                                <span class="badge bg-military-red text-white me-2">{{ current_user.enrolled_courses|length }} Cursos</span>
+                                <span class="badge bg-success text-white">{{ current_user.achievements|length }} Conquistas</span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                                <i class="fas fa-edit me-2"></i>Editar Perfil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Profile Information -->
+            <div class="col-lg-4">
+                <div class="profile-info military-card">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-user me-2"></i>Informações Pessoais
+                    </h5>
+                    
+                    <div class="info-group mb-3">
+                        <label class="text-light-gray small">Nome de usuário</label>
+                        <div class="text-white">{{ current_user.username }}</div>
+                    </div>
+                    
+                    <div class="info-group mb-3">
+                        <label class="text-light-gray small">Email</label>
+                        <div class="text-white">{{ current_user.email }}</div>
+                        {% if current_user.is_verified %}
+                            <span class="badge bg-success ms-2">Verificado</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark ms-2">Não verificado</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="info-group mb-3">
+                        <label class="text-light-gray small">Patente</label>
+                        <div class="text-white">{{ current_user.rank.replace('_', ' ').title() if current_user.rank else 'Não informado' }}</div>
+                    </div>
+                    
+                    {% if current_user.registration_number %}
+                    <div class="info-group mb-3">
+                        <label class="text-light-gray small">Matrícula Militar</label>
+                        <div class="text-white">{{ current_user.registration_number }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="info-group mb-3">
+                        <label class="text-light-gray small">Membro desde</label>
+                        <div class="text-white">{{ current_user.created_at.strftime('%d/%m/%Y') }}</div>
+                    </div>
+                    
+                    {% if current_user.last_login %}
+                    <div class="info-group">
+                        <label class="text-light-gray small">Último acesso</label>
+                        <div class="text-white">{{ current_user.last_login.strftime('%d/%m/%Y às %H:%M') }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Account Status -->
+                <div class="account-status military-card mt-4">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-shield-alt me-2"></i>Status da Conta
+                    </h5>
+                    
+                    <div class="status-item d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-light-gray">Conta Ativa</span>
+                        {% if current_user.is_active %}
+                            <span class="badge bg-success">Ativo</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Pendente</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="status-item d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-light-gray">Email Verificado</span>
+                        {% if current_user.is_verified %}
+                            <span class="badge bg-success">Verificado</span>
+                        {% else %}
+                            <span class="badge bg-danger">Não Verificado</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="status-item d-flex justify-content-between align-items-center">
+                        <span class="text-light-gray">Nível de Acesso</span>
+                        <span class="badge bg-gold text-dark">{{ current_user.role.name.title() }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress & Achievements -->
+            <div class="col-lg-8">
+                <!-- XP Progress -->
+                <div class="xp-progress military-card mb-4">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-chart-line me-2"></i>Progresso Militar
+                    </h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="progress-info mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-light-gray">{{ current_user.get_military_level() }} (Nível {{ current_user.level }})</span>
+                                    <span class="text-gold">{{ current_user.xp }} XP</span>
+                                </div>
+                                <div class="progress military-progress">
+                                    <div class="progress-bar bg-gold" role="progressbar" 
+                                         style="width: {{ current_user.get_progress_to_next_level() }}%">
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <span class="text-light-gray small">Atual: {{ current_user.xp }} XP</span>
+                                    <span class="text-light-gray small">Próximo: {{ current_user.level * 150 }} XP</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="levelChart" width="200" height="100"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="achievements military-card mb-4">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-trophy me-2"></i>Conquistas Desbloqueadas
+                    </h5>
+                    
+                    {% if achievements %}
+                        <div class="row g-3">
+                            {% for achievement in achievements %}
+                            <div class="col-md-6">
+                                <div class="achievement-card border border-gold rounded p-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="achievement-icon me-3" style="color: {{ achievement.badge_color }}; font-size: 2rem;">
+                                            {{ achievement.icon }}
+                                        </div>
+                                        <div>
+                                            <h6 class="text-white mb-1">{{ achievement.name }}</h6>
+                                            <p class="text-light-gray small mb-1">{{ achievement.description }}</p>
+                                            <span class="badge bg-gold text-dark">+{{ achievement.xp_reward }} XP</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-achievements text-center py-4">
+                            <i class="fas fa-medal fa-3x text-dark-gray mb-3"></i>
+                            <h6 class="text-light-gray">Nenhuma conquista desbloqueada</h6>
+                            <p class="text-light-gray small">Complete cursos e quizzes para ganhar conquistas</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Course Progress -->
+                <div class="course-progress military-card">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-graduation-cap me-2"></i>Progresso nos Cursos
+                    </h5>
+                    
+                    {% if enrolled_courses %}
+                        {% for course in enrolled_courses %}
+                        <div class="course-progress-item border-bottom border-dark-gray py-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h6 class="text-white mb-1">{{ course.title }}</h6>
+                                    <span class="badge bg-military-red text-white">{{ course.category.title() }}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="progress military-progress">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 75%">
+                                        </div>
+                                    </div>
+                                    <small class="text-light-gray">75% concluído</small>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <a href="{{ url_for('main.course_detail', course_id=course.id) }}" 
+                                       class="btn btn-outline-gold btn-sm">
+                                        Ver
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-courses text-center py-4">
+                            <i class="fas fa-book fa-3x text-dark-gray mb-3"></i>
+                            <h6 class="text-light-gray">Nenhum curso matriculado</h6>
+                            <a href="{{ url_for('main.courses') }}" class="btn btn-gold">
+                                <i class="fas fa-search me-2"></i>Explorar Cursos
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content military-modal">
+            <div class="modal-header border-bottom border-gold">
+                <h5 class="modal-title text-gold">
+                    <i class="fas fa-edit me-2"></i>Editar Perfil
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+                    {{ csrf_token() }}
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-light-gray">Nome completo</label>
+                        <input type="text" name="full_name" class="form-control military-input" 
+                               value="{{ current_user.full_name or '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-light-gray">Patente</label>
+                        <select name="rank" class="form-select military-input" required>
+                            <option value="civil" {% if current_user.rank == 'civil' %}selected{% endif %}>Civil</option>
+                            <option value="soldado" {% if current_user.rank == 'soldado' %}selected{% endif %}>Soldado</option>
+                            <option value="cabo" {% if current_user.rank == 'cabo' %}selected{% endif %}>Cabo</option>
+                            <option value="3_sargento" {% if current_user.rank == '3_sargento' %}selected{% endif %}>3º Sargento</option>
+                            <option value="2_sargento" {% if current_user.rank == '2_sargento' %}selected{% endif %}>2º Sargento</option>
+                            <option value="1_sargento" {% if current_user.rank == '1_sargento' %}selected{% endif %}>1º Sargento</option>
+                            <option value="suboficial" {% if current_user.rank == 'suboficial' %}selected{% endif %}>Suboficial</option>
+                            <option value="aspirante" {% if current_user.rank == 'aspirante' %}selected{% endif %}>Aspirante</option>
+                            <option value="tenente" {% if current_user.rank == 'tenente' %}selected{% endif %}>Tenente</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-light-gray">Matrícula militar</label>
+                        <input type="text" name="registration_number" class="form-control military-input" 
+                               value="{{ current_user.registration_number or '' }}" placeholder="Ex: 123456-7">
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-gold">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-gold">
+                        <i class="fas fa-save me-2"></i>Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Level progression chart
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('levelChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Nível Atual', 'Próximo Nível'],
+            datasets: [{
+                data: [{{ current_user.get_progress_to_next_level() }}, 100 - {{ current_user.get_progress_to_next_level() }}],
+                backgroundColor: ['#D4AF37', '#2A2A2A'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: {
+                        color: '#333'
+                    },
+                    ticks: {
+                        color: '#E0E0E0'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: '#333'
+                    },
+                    ticks: {
+                        color: '#E0E0E0'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
