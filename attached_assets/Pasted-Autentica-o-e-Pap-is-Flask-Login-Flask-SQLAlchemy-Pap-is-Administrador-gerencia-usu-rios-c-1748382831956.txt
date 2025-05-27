@@ -1,0 +1,71 @@
+Autenticação e Papéis (Flask-Login + Flask-SQLAlchemy)
+
+Papéis: Administrador (gerencia usuários/cursos), Professor (postar materiais), Aluno (acesso após pagamento).
+
+Cadastro/Login: Criptografia com Bcrypt, recuperação de senha via e-mail (Flask-Mail).
+
+Modelo de Usuário: Campos como xp, level, is_active (ativado após pagamento).
+
+Gamificação Integrada
+
+Níveis e XP: Progressão de "Recruta" (nível 1) a "Almirante" (nível 10) com 150 XP/nível.
+
+Conquistas: Badges douradas (#D4AF37) por metas (ex: "100% em Matemática", "Top 1 do Ranking").
+
+Leaderboard: Top 10 alunos por XP (atualizado em tempo real).
+
+Interface Militar (Cores Oficiais Ajustadas)
+
+Paleta Revisada:
+
+Azul Marinho: #000080 (cabeçalho, botões primários).
+
+Dourado: #D4AF37 (textos em destaque, bordas, badges).
+
+Vermelho Heráldico: #8B0000 (alertas, botões secundários).
+
+Fundo Escuro Neutro: #1A1A1A (substitui branco, garante contraste).
+
+Texto Primário: #E0E0E0 (cinza claro para legibilidade).
+
+Diretrizes de Contraste:
+
+Todos os textos têm contraste mínimo de 4.5:1 contra o fundo (testado via WebAIM).
+
+Exemplo: #E0E0E0 (texto) sobre #1A1A1A (fundo) = 12.3:1.
+
+Sistema de Cursos
+
+Aulas: Vídeos (embed do YouTube), PDFs (armazenados no Replit), quizzes (Flask-WTF).
+
+Simulados Cronometrados: Temporizador com Flask-Session.
+
+Painel do Professor: Upload de materiais via Flask-Uploads.
+
+Pagamento PIX Instantâneo (Mercado Pago API)
+
+Fluxo:
+
+Aluno seleciona curso → gera cobrança PIX via API.
+
+Webhook atualiza user.is_active = True após confirmação.
+
+Segurança: Criptografia AES para dados de transação.
+
+Fórum Comunitário
+
+Categorias: "Dúvidas Técnicas", "Estratégias de Prova", "Material Complementar".
+
+Permissões: Professores podem fixar tópicos e marcar respostas como "oficiais".
+
+XP por Participação: +10 XP por postagem útil (avaliada por professores).
+
+Segurança Reforçada
+
+Proteções:
+
+CSRF (Flask-WTF).
+
+Rate limiting (Flask-Limiter: 10 requisições/minuto).
+
+Sanitização de HTML (bleach).
