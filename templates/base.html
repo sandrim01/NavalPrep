@@ -102,40 +102,6 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
         </div>
-                                {% if current_user.role.name in ['admin', 'professor'] %}
-                                <li><hr class="dropdown-divider"></li>
-                                {% if current_user.role.name == 'admin' %}
-                                <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">
-                                    <i class="fas fa-cog me-2"></i>Admin
-                                </a></li>
-                                {% endif %}
-                                {% if current_user.role.name in ['admin', 'professor'] %}
-                                <li><a class="dropdown-item" href="{{ url_for('professor.dashboard') }}">
-                                    <i class="fas fa-chalkboard-teacher me-2"></i>Professor
-                                </a></li>
-                                {% endif %}
-                                {% endif %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Sair
-                                </a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.login') }}">
-                                <i class="fas fa-sign-in-alt me-1"></i>Entrar
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-gold ms-2" href="{{ url_for('auth.register') }}">
-                                <i class="fas fa-user-plus me-1"></i>Cadastrar
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
     </nav>
 
     <!-- Flash Messages -->
