@@ -1047,6 +1047,218 @@ body {
     animation: slideIn 0.4s ease-out;
 }
 
+/* Course Modules and Missions - Based on second image */
+.stat-badge {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.stat-badge.estudo {
+    background: linear-gradient(135deg, #8b5cf6, #a855f7);
+    color: white;
+}
+
+.stat-badge.temporada {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.stat-badge.batalha {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.stat-badge.comunidade {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.stat-badge.mercado {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.stat-badge.sorteio {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.module-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.module-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.module-title {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.module-subtitle {
+    color: var(--accent-green);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.mission-card {
+    background: linear-gradient(135deg, #8b5cf6, #a855f7);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.mission-card.completed {
+    background: linear-gradient(135deg, #8b5cf6, #a855f7);
+    opacity: 0.9;
+}
+
+.mission-card.active {
+    background: linear-gradient(135deg, #8b5cf6, #a855f7);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+    border: 2px solid var(--accent-green);
+}
+
+.mission-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.mission-number {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.mission-number.active {
+    background: var(--accent-green);
+    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);
+}
+
+.mission-content {
+    flex: 1;
+    color: white;
+}
+
+.mission-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.mission-progress {
+    margin-bottom: 1rem;
+}
+
+.progress-icons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.progress-icons i {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.4);
+    transition: color 0.3s ease;
+}
+
+.progress-icons i.completed {
+    color: var(--accent-green);
+}
+
+.mission-items {
+    margin-bottom: 1.5rem;
+}
+
+.mission-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.mission-item.completed {
+    color: white;
+}
+
+.mission-item i {
+    color: rgba(255, 255, 255, 0.4);
+    width: 16px;
+}
+
+.mission-item.completed i {
+    color: var(--accent-green);
+}
+
+.mission-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.certificate-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.mission-status .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+}
+
+.mission-timer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-align: right;
+}
+
+.timer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.mission-status-indicator {
+    margin-bottom: 0.5rem;
+}
+
+/* Course Actions */
+.course-actions {
+    text-align: center;
+    padding: 2rem 0;
+}
+
 /* Text Utilities */
 .text-primary-custom {
     color: var(--text-primary) !important;
