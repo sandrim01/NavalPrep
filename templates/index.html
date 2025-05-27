@@ -5,58 +5,36 @@
 {% block meta_description %}Plataforma de preparação para concursos da Marinha do Brasil. Cursos completos para Cabo e Sargento com gamificação e professores especializados.{% endblock %}
 
 {% block content %}
-<div class="hero-section">
-    <div class="container">
-        <div class="row align-items-center min-vh-100">
-            <div class="col-lg-6">
-                <div class="hero-content">
-                    <h1 class="display-4 fw-bold text-white mb-4">
-                        <span class="text-gold">Academia Naval</span><br>
-                        Preparação de Elite para
-                        <span class="military-text-effect">Fuzileiros Navais</span>
+<!-- Main Content -->
+<div class="main-content">
+    <div class="content-wrapper">
+        <!-- Hero Section -->
+        <div class="row align-items-center mb-5">
+            <div class="col-lg-8">
+                <div class="hero-content fade-in">
+                    <h1 class="display-5 fw-bold text-primary-custom mb-3">
+                        <span class="text-accent-green">Academia Naval</span><br>
+                        Preparação de Elite para Fuzileiros Navais
                     </h1>
-                    <p class="lead text-light-gray mb-4">
+                    <p class="lead text-secondary-custom mb-4">
                         Transforme sua carreira militar com nossa plataforma gamificada. 
                         Prepare-se para os concursos de Cabo e Sargento da Marinha com conteúdo 
                         de qualidade e metodologia comprovada.
                     </p>
                     
-                    <div class="hero-stats mb-4">
-                        <div class="row text-center">
-                            <div class="col-4">
-                                <div class="stat-item">
-                                    <h3 class="text-gold">{{ courses|length }}+</h3>
-                                    <p class="text-light-gray">Cursos Ativos</p>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="stat-item">
-                                    <h3 class="text-gold">95%</h3>
-                                    <p class="text-light-gray">Taxa de Aprovação</p>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="stat-item">
-                                    <h3 class="text-gold">{{ top_users|length }}k+</h3>
-                                    <p class="text-light-gray">Alunos Ativos</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="hero-actions">
+                    <div class="d-flex gap-3 mb-4">
                         {% if not current_user.is_authenticated %}
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-gold btn-lg me-3">
-                            <i class="fas fa-user-plus me-2"></i>Iniciar Preparação
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-rocket me-2"></i>Iniciar Preparação
                         </a>
                         <a href="{{ url_for('main.courses') }}" class="btn btn-outline-light btn-lg">
                             <i class="fas fa-eye me-2"></i>Ver Cursos
                         </a>
                         {% else %}
-                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-gold btn-lg me-3">
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">
                             <i class="fas fa-tachometer-alt me-2"></i>Meu Dashboard
                         </a>
-                        <a href="{{ url_for('main.courses') }}" class="btn btn-outline-light btn-lg">
+                        <a href="{{ url_for('main.courses') }}" class="btn btn-outline-primary btn-lg">
                             <i class="fas fa-graduation-cap me-2"></i>Explorar Cursos
                         </a>
                         {% endif %}
@@ -64,37 +42,102 @@
                 </div>
             </div>
             
-            <div class="col-lg-6">
-                <div class="hero-visual">
-                    <!-- Leaderboard Preview -->
-                    <div class="leaderboard-preview military-card">
-                        <h5 class="text-gold mb-3">
-                            <i class="fas fa-trophy me-2"></i>Ranking Atual
-                        </h5>
-                        <div class="leaderboard-list">
-                            {% for user in top_users[:5] %}
-                            <div class="leaderboard-item d-flex align-items-center mb-2">
-                                <span class="rank-badge {% if loop.index <= 3 %}rank-top{% endif %}">
-                                    {{ loop.index }}
-                                </span>
-                                <div class="user-info flex-grow-1 ms-3">
-                                    <div class="username">{{ user.username }}</div>
-                                    <div class="user-level small text-light-gray">
-                                        {{ user.get_military_level() }}
-                                    </div>
-                                </div>
-                                <div class="xp-badge">{{ user.xp }} XP</div>
+            <div class="col-lg-4">
+                <div class="hero-stats slide-in">
+                    <!-- Progress Card -->
+                    <div class="progress-card mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="text-secondary-custom mb-0">Progresso do Missão</h6>
+                            <i class="fas fa-target text-accent-green"></i>
+                        </div>
+                        <div class="progress-value mb-2">18</div>
+                        <div class="progress-label">Dias decorridos</div>
+                        <div class="progress-bar-container mt-3">
+                            <div class="progress">
+                                <div class="progress-bar" style="width: 65%"></div>
                             </div>
-                            {% endfor %}
                         </div>
-                        {% if not current_user.is_authenticated %}
-                        <div class="text-center mt-3">
-                            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-gold btn-sm">
-                                Entrar no Ranking
-                            </a>
-                        </div>
-                        {% endif %}
                     </div>
+
+                    <!-- Quick Stats Grid -->
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div class="stat-value">4</div>
+                                <div class="stat-label">Cursos</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="stat-value">1.2k</div>
+                                <div class="stat-label">Alunos</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+                                <div class="stat-value">95%</div>
+                                <div class="stat-label">Aprovação</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="stat-value">4.9</div>
+                                <div class="stat-label">Avaliação</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row g-4 mt-5">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-gamepad fa-2x text-accent-green"></i>
+                    </div>
+                    <h5 class="text-primary-custom mb-3">Gamificação Militar</h5>
+                    <p class="text-secondary-custom">
+                        Sistema de níveis, conquistas e ranking que simula a hierarquia militar. 
+                        Ganhe XP e suba de patente conforme avança nos estudos.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-chalkboard-teacher fa-2x text-accent-blue"></i>
+                    </div>
+                    <h5 class="text-primary-custom mb-3">Professores Especialistas</h5>
+                    <p class="text-secondary-custom">
+                        Instrutores com experiência militar e aprovação em concursos da Marinha. 
+                        Metodologia focada nas provas de Cabo e Sargento.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-comments fa-2x text-accent-orange"></i>
+                    </div>
+                    <h5 class="text-primary-custom mb-3">Comunidade Ativa</h5>
+                    <p class="text-secondary-custom">
+                        Fórum exclusivo para troca de experiências, dúvidas e estratégias 
+                        entre militares em preparação.
+                    </p>
                 </div>
             </div>
         </div>

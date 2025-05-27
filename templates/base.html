@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="military">
+<html lang="pt-BR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,9 @@
     <!-- Font Awesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -20,65 +23,85 @@
     
     {% block head %}{% endblock %}
 </head>
-<body class="military-theme">
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark military-nav fixed-top">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
-                <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" width="40" height="40" class="me-2">
-                <span class="fw-bold">Academia Naval</span>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-brand mb-4">
+            <a href="{{ url_for('main.index') }}" class="d-flex align-items-center text-decoration-none">
+                <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" width="32" height="32" class="me-2">
+                <span class="fw-bold text-accent-green">Academia Naval</span>
             </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.index') }}">
+                    <i class="fas fa-home"></i>Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.courses') }}">
+                    <i class="fas fa-graduation-cap"></i>Cursos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.forum') }}">
+                    <i class="fas fa-comments"></i>Comunidade
+                </a>
+            </li>
+            {% if current_user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.profile') }}">
+                    <i class="fas fa-user"></i>Perfil
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                    <i class="fas fa-sign-out-alt"></i>Sair
+                </a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.login') }}">
+                    <i class="fas fa-sign-in-alt"></i>Entrar
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.register') }}">
+                    <i class="fas fa-user-plus"></i>Registrar
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+        
+        <!-- User Info (if authenticated) -->
+        {% if current_user.is_authenticated %}
+        <div class="sidebar-user mt-auto p-3">
+            <div class="user-profile card">
+                <div class="card-body text-center">
+                    <div class="profile-avatar mb-2">
+                        {{ current_user.username[0].upper() }}
+                    </div>
+                    <h6 class="text-primary-custom">{{ current_user.username }}</h6>
+                    <div class="rank-badge mb-2">{{ current_user.get_military_level() }}</div>
+                    <div class="xp-display">{{ current_user.xp }} XP</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </nav>
+
+    <!-- Top Navigation Bar (Mobile) -->
+    <nav class="navbar navbar-expand-lg d-lg-none">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" width="32" height="32" class="me-2">
+                Academia Naval
+            </a>
+            <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.index') }}">
-                            <i class="fas fa-home me-1"></i>Início
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.courses') }}">
-                            <i class="fas fa-graduation-cap me-1"></i>Cursos
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.forum') }}">
-                            <i class="fas fa-comments me-1"></i>Fórum
-                        </a>
-                    </li>
-                    {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">
-                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-                
-                <ul class="navbar-nav">
-                    {% if current_user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                <div class="military-badge me-2">
-                                    <img src="{{ url_for('static', filename='assets/military-badge.svg') }}" alt="Badge" width="20" height="20">
-                                </div>
-                                <div class="user-info">
-                                    <div class="username">{{ current_user.username }}</div>
-                                    <div class="rank-level">{{ current_user.get_military_level() }} - Nv.{{ current_user.level }}</div>
-                                </div>
-                                <div class="xp-badge ms-2">{{ current_user.xp }} XP</div>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end military-dropdown">
-                                <li><a class="dropdown-item" href="{{ url_for('main.profile') }}">
-                                    <i class="fas fa-user me-2"></i>Perfil
-                                </a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('main.dashboard') }}">
-                                    <i class="fas fa-chart-line me-2"></i>Progresso
-                                </a></li>
+        </div>
                                 {% if current_user.role.name in ['admin', 'professor'] %}
                                 <li><hr class="dropdown-divider"></li>
                                 {% if current_user.role.name == 'admin' %}
