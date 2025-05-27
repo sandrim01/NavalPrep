@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{% block meta_description %}Plataforma educacional militar para preparação de concursos da Marinha do Brasil{% endblock %}">
-    <title>{% block title %}Academia Naval - Preparação Militar{% endblock %}</title>
+    <title>{% block title %}Forja - FN - Preparação Militar{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -29,7 +29,7 @@
         <div class="sidebar-brand mb-4">
             <a href="{{ url_for('main.index') }}" class="d-flex align-items-center text-decoration-none">
                 <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" width="32" height="32" class="me-2">
-                <span class="fw-bold text-accent-green">Academia Naval</span>
+                <span class="fw-bold text-accent-green">Forja - FN</span>
             </a>
         </div>
         
@@ -96,7 +96,7 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for('main.index') }}">
                 <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" width="32" height="32" class="me-2">
-                Academia Naval
+                Forja - FN
             </a>
             <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
                 <span class="navbar-toggler-icon"></span>
@@ -147,10 +147,10 @@
                 <div class="col-md-2">
                     <h6 class="text-gold mb-3">Cursos</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('main.courses') }}" class="footer-link">Matemática</a></li>
-                        <li><a href="{{ url_for('main.courses') }}" class="footer-link">Português</a></li>
-                        <li><a href="{{ url_for('main.courses') }}" class="footer-link">História Naval</a></li>
-                        <li><a href="{{ url_for('main.courses') }}" class="footer-link">Legislação</a></li>
+                        <li><a href="{{ url_for('main.courses') }}" class="footer-link">Preparatório para CB-FN</a></li>
+                        <li><a href="{{ url_for('main.courses') }}" class="footer-link">Preparatório para SG-FN</a></li>
+                        <li><a href="{{ url_for('main.courses') }}" class="footer-link">Preparatório para A-FN</a></li>
+                        <li><a href="{{ url_for('main.courses') }}" class="footer-link">LPreparatório para SD-FN</a></li>
                     </ul>
                 </div>
                 <div class="col-md-2">
@@ -187,7 +187,7 @@
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <p class="mb-0 text-light-gray">
-                        &copy; 2024 Academia Naval. Todos os direitos reservados.
+                        &copy; 2025 Forja - FN. Todos os direitos reservados.
                     </p>
                 </div>
                 <div class="col-md-6 text-md-end">
