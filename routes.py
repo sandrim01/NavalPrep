@@ -446,6 +446,92 @@ def dashboard():
                          recent_users=recent_users,
                          recent_payments=recent_payments)
 
+# Course management routes
+@admin_bp.route('/manage-courses')
+@login_required
+def manage_courses():
+    """Admin course management"""
+    if current_user.role.name not in ['admin', 'professor']:
+        flash('Acesso negado.', 'error')
+        return redirect(url_for('main.index'))
+    
+    courses = Course.query.order_by(Course.created_at.desc()).all()
+    return render_template('admin/courses.html', courses=courses)
+
+@admin_bp.route('/courses/new', methods=['GET', 'POST'])
+@login_required
+def create_course():
+    """Create new course"""
+    if current_user.role.name not in ['admin', 'professor']:
+        flash('Acesso negado.', 'error')
+        return redirect(url_for('main.index'))
+    
+    form = CourseForm()
+    if form.validate_on_submit():
+        course = Course(
+            title=form.title.data,
+            description=form.description.data,
+            price=form.price.data,
+            duration_hours=form.duration_hours.data,
+            level=form.level.data,
+            category=form.category.data
+        )
+        
+        db.session.add(course)
+        db.session.commit()
+        
+        flash('Curso criado com sucesso!', 'success')
+        return redirect(url_for('admin.course_detail', course_id=course.id))
+    
+    return render_template('admin/course_form.html', form=form, title='Novo Curso')
+
+@admin_bp.route('/courses/<int:course_id>')
+@login_required
+def course_detail(course_id):
+    """Course detail with modules/missions"""
+    if current_user.role.name not in ['admin', 'professor']:
+        flash('Acesso negado.', 'error')
+        return redirect(url_for('main.index'))
+    
+    course = Course.query.get_or_404(course_id)
+    lessons = Lesson.query.filter_by(course_id=course_id).order_by(Lesson.order).all()
+    quizzes = Quiz.query.filter_by(course_id=course_id).order_by(Quiz.id).all()
+    
+    return render_template('admin/course_detail.html', course=course, lessons=lessons, quizzes=quizzes)
+
+@admin_bp.route('/courses/<int:course_id>/lessons/new', methods=['GET', 'POST'])
+@login_required
+def create_lesson(course_id):
+    """Create new lesson/mission"""
+    if current_user.role.name not in ['admin', 'professor']:
+        flash('Acesso negado.', 'error')
+        return redirect(url_for('main.index'))
+    
+    course = Course.query.get_or_404(course_id)
+    form = LessonForm()
+    
+    if form.validate_on_submit():
+        # Get next order number
+        last_lesson = Lesson.query.filter_by(course_id=course_id).order_by(Lesson.order.desc()).first()
+        next_order = (last_lesson.order + 1) if last_lesson else 1
+        
+        lesson = Lesson(
+            title=form.title.data,
+            content=form.content.data,
+            video_url=form.video_url.data,
+            duration_minutes=form.duration_minutes.data,
+            order=form.order.data or next_order,
+            course_id=course_id
+        )
+        
+        db.session.add(lesson)
+        db.session.commit()
+        
+        flash('Missão criada com sucesso!', 'success')
+        return redirect(url_for('admin.course_detail', course_id=course_id))
+    
+    return render_template('admin/lesson_form.html', form=form, course=course, title='Nova Missão')
+
 @admin_bp.route('/users')
 @login_required
 def users():

@@ -3,51 +3,344 @@
 {% block title %}Cursos - Academia Naval{% endblock %}
 
 {% block content %}
-<div class="courses-section">
-    <div class="container">
-        <!-- Page Header -->
-        <div class="page-header mb-4">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h1 class="text-white mb-2">
-                        <i class="fas fa-graduation-cap me-3"></i>Cursos de <span class="text-gold">Preparação Militar</span>
-                    </h1>
-                    <p class="text-light-gray lead">Escolha sua especialização e inicie sua jornada rumo à aprovação</p>
-                </div>
-                <div class="col-auto">
-                    <div class="course-stats military-card p-3">
-                        <div class="text-center">
-                            <h4 class="text-gold mb-1">{{ courses.total }}</h4>
-                            <small class="text-light-gray">Cursos Disponíveis</small>
+<div class="main-content">
+    <div class="content-wrapper">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="text-primary-custom mb-2">Cursos de Preparação</h2>
+                <p class="text-secondary-custom">Escolha sua especialização e inicie sua jornada rumo à aprovação</p>
+            </div>
+            {% if current_user.is_authenticated and current_user.role.name == 'admin' %}
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCourseModal">
+                <i class="fas fa-plus me-2"></i>Novo Curso
+            </button>
+            {% endif %}
+        </div>
+
+        <!-- Course Categories Grid (baseado na primeira imagem) -->
+        <div class="row g-4">
+            <!-- Linguagens -->
+            <div class="col-md-6 col-lg-3">
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h5 class="category-title">Linguagens</h5>
+                        <div class="course-list">
+                            <div class="course-item">• Algoritmo</div>
+                            <div class="course-item">• C#</div>
+                            <div class="course-item">• Delphi</div>
+                            <div class="course-item">• Dart</div>
+                            <div class="course-item">• Java</div>
+                            <div class="course-item">• JavaScript</div>
+                            <div class="course-item">• Kotlin</div>
+                            <div class="course-item">• PHP</div>
+                            <div class="course-item">• Python</div>
+                            <div class="course-item">• TypeScript</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Filters -->
-        <div class="filters-section mb-4">
-            <div class="military-card">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <h6 class="text-gold mb-3">
-                            <i class="fas fa-filter me-2"></i>Filtros
-                        </h6>
-                        <form method="GET" class="filter-form">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <select name="category" class="form-select military-input" onchange="this.form.submit()">
-                                        <option value="">Todas as categorias</option>
-                                        {% for category in categories %}
-                                            {% if category[0] %}
-                                            <option value="{{ category[0] }}" {% if selected_category == category[0] %}selected{% endif %}>
-                                                {{ category[0].replace('_', ' ').title() }}
-                                            </option>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
+            <!-- Front-End -->
+            <div class="col-md-6 col-lg-3">
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <h5 class="category-title">Front-End</h5>
+                        <div class="course-list">
+                            <div class="course-item">• HTML</div>
+                            <div class="course-item">• CSS</div>
+                            <div class="course-item">• Angular</div>
+                            <div class="course-item">• React</div>
+                            <div class="course-item">• Vue.js</div>
+                            <div class="course-item">• JQuery</div>
+                            <div class="course-item">• Bootstrap</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back-End - Frameworks -->
+            <div class="col-md-6 col-lg-3">
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <h5 class="category-title">Back-End - Frameworks</h5>
+                        <div class="course-list">
+                            <div class="course-item">• Django</div>
+                            <div class="course-item">• Laravel</div>
+                            <div class="course-item">• Node.js</div>
+                            <div class="course-item">• Spring</div>
+                            <div class="course-item">.Net</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile -->
+            <div class="col-md-6 col-lg-3">
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h5 class="category-title">Mobile</h5>
+                        <div class="course-list">
+                            <div class="course-item">• React Native</div>
+                            <div class="course-item">• Flutter</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banco de Dados -->
+            <div class="col-md-6 col-lg-3">
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h5 class="category-title">Banco de Dados</h5>
+                        <div class="course-list">
+                            <div class="course-item">• Linguagem SQL</div>
+                            <div class="course-item">• Modelagem de dados</div>
+                            <div class="course-item">• MySQL</div>
+                            <div class="course-item">• Oracle</div>
+                            <div class="course-item">• PostgreSQL</div>
+                            <div class="course-item">• SQL Server</div>
+                            <div class="course-item">• NoSQL e MongoDB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arquitetura e Design -->
+            <div class="col-md-6 col-lg-3">
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-drafting-compass"></i>
+                        </div>
+                        <h5 class="category-title">Arquitetura e Design</h5>
+                        <div class="course-list">
+                            <div class="course-item">• MVC</div>
+                            <div class="course-item">• REST</div>
+                            <div class="course-item">• Padrões de Projeto</div>
+                            <div class="course-item">• Orientação a Objetos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Engenharia de Software -->
+            <div class="col-md-6 col-lg-3">
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h5 class="category-title">Engenharia de Software</h5>
+                        <div class="course-list">
+                            <div class="course-item">• Levantamento de Requisitos</div>
+                            <div class="course-item">• Scrum</div>
+                            <div class="course-item">• UML</div>
+                            <div class="course-item">• Engenharia de Software para programadores</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mais assuntos -->
+            <div class="col-md-6 col-lg-3">
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <h5 class="category-title">Mais assuntos</h5>
+                        <div class="course-list">
+                            <div class="course-item">• Docker</div>
+                            <div class="course-item">• Git</div>
+                            <div class="course-item">• Teste de Software</div>
+                            <div class="course-item">• Auditoria Comercial</div>
+                            <div class="course-item">• Gestão de Projeto</div>
+                            <div class="course-item">• Modelagem de Processo de Negócio</div>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <ul class="course-list">
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Álgebra</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Geometria</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Trigonometria</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Estatística</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Probabilidade</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Raciocínio Lógico</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Português -->
+            <div class="col-md-6 col-lg-3">
+                <div class="course-category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h5 class="category-title">Português</h5>
+                    </div>
+                    <div class="category-content">
+                        <ul class="course-list">
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Gramática</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Interpretação de Texto</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Redação</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Literatura</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Ortografia</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Sintaxe</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conhecimentos Gerais -->
+            <div class="col-md-6 col-lg-3">
+                <div class="course-category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h5 class="category-title">Conhecimentos Gerais</h5>
+                    </div>
+                    <div class="category-content">
+                        <ul class="course-list">
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>História do Brasil</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Geografia</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Atualidades</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Ciências</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Meio Ambiente</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Tecnologia</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legislação Militar -->
+            <div class="col-md-6 col-lg-3">
+                <div class="course-category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h5 class="category-title">Legislação Militar</h5>
+                    </div>
+                    <div class="category-content">
+                        <ul class="course-list">
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Regulamentos</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Código Penal Militar</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Direitos e Deveres</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Hierarquia</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Disciplina</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Ética Militar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tática e Estratégia -->
+            <div class="col-md-6 col-lg-3">
+                <div class="course-category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-chess"></i>
+                        </div>
+                        <h5 class="category-title">Tática e Estratégia</h5>
+                    </div>
+                    <div class="category-content">
+                        <ul class="course-list">
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Operações Navais</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Navegação</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Comunicações</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Logística</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Segurança</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Combate</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Física -->
+            <div class="col-md-6 col-lg-3">
+                <div class="course-category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-atom"></i>
+                        </div>
+                        <h5 class="category-title">Física</h5>
+                    </div>
+                    <div class="category-content">
+                        <ul class="course-list">
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Mecânica</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Termodinâmica</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Eletricidade</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Magnetismo</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Ondas</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Óptica</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informática -->
+            <div class="col-md-6 col-lg-3">
+                <div class="course-category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <h5 class="category-title">Informática</h5>
+                    </div>
+                    <div class="category-content">
+                        <ul class="course-list">
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Windows</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Office</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Internet</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Segurança Digital</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Hardware</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Redes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inglês -->
+            <div class="col-md-6 col-lg-3">
+                <div class="course-category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <h5 class="category-title">Inglês</h5>
+                    </div>
+                    <div class="category-content">
+                        <ul class="course-list">
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Grammar</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Vocabulary</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Reading</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Writing</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Listening</li>
+                            <li><i class="fas fa-check-circle text-accent-green me-2"></i>Speaking</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
                                     <select name="level" class="form-select military-input" onchange="this.form.submit()">
                                         <option value="">Todos os níveis</option>
                                         <option value="beginner">Iniciante</option>

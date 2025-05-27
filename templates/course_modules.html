@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }} - Academia Naval{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="content-wrapper">
+        <!-- Course Header -->
+        <div class="course-header-section mb-4">
+            <div class="row align-items-center">
+                <div class="col">
+                    <nav aria-label="breadcrumb" class="mb-2">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{{ url_for('main.courses') }}" class="text-accent-green">Cursos</a>
+                            </li>
+                            <li class="breadcrumb-item active text-secondary-custom">{{ course.title }}</li>
+                        </ol>
+                    </nav>
+                    <h1 class="text-primary-custom mb-2">Plano de estudo {{ course.title }}</h1>
+                    <a href="#" class="text-accent-green small">
+                        <i class="fas fa-external-link-alt me-1"></i>Ver projetos
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <!-- Top Stats Bar -->
+                    <div class="d-flex gap-3">
+                        <div class="stat-badge estudo">
+                            <i class="fas fa-book me-1"></i>Estudo
+                        </div>
+                        <div class="stat-badge temporada">
+                            <i class="fas fa-calendar me-1"></i>Temporada
+                        </div>
+                        <div class="stat-badge batalha">
+                            <i class="fas fa-shield-alt me-1"></i>Batalha
+                        </div>
+                        <div class="stat-badge comunidade">
+                            <i class="fas fa-users me-1"></i>Comunidade
+                        </div>
+                        <div class="stat-badge mercado">
+                            <i class="fas fa-coins me-1"></i>Mercado
+                            <span class="badge bg-warning text-dark ms-1">2</span>
+                        </div>
+                        <div class="stat-badge sorteio">
+                            <i class="fas fa-gift me-1"></i>Sorteio
+                            <span class="badge bg-success ms-1">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Modules -->
+        <div class="course-modules">
+            <!-- Módulo 1 -->
+            <div class="module-card mb-4">
+                <div class="module-header">
+                    <h4 class="module-title">MÓDULO 1</h4>
+                    <h5 class="module-subtitle">HTML e CSS</h5>
+                </div>
+                
+                <!-- Mission 1 -->
+                <div class="mission-card completed">
+                    <div class="mission-header">
+                        <div class="mission-number">1</div>
+                        <div class="mission-content">
+                            <h6 class="mission-title">1ª Missão</h6>
+                            <div class="mission-progress">
+                                <div class="progress-icons">
+                                    <i class="fas fa-play-circle completed"></i>
+                                    <i class="fas fa-star completed"></i>
+                                    <i class="fas fa-star completed"></i>
+                                </div>
+                            </div>
+                            <div class="mission-items">
+                                <div class="mission-item completed">
+                                    <i class="fas fa-check-circle me-2"></i>1. Vídeo: Apresentação da missão
+                                </div>
+                                <div class="mission-item completed">
+                                    <i class="fas fa-check-circle me-2"></i>2. Curso: Programador Front-end: Introdução
+                                </div>
+                                <div class="mission-item completed">
+                                    <i class="fas fa-check-circle me-2"></i>3. Exercícios
+                                </div>
+                            </div>
+                            <div class="mission-footer">
+                                <div class="certificate-badge completed">
+                                    <i class="fas fa-certificate me-1"></i>Certificado
+                                    <span class="badge bg-success ms-1">DESBLOQUEADO</span>
+                                </div>
+                                <div class="mission-status">
+                                    <span class="badge bg-success">PLATINADO</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mission 2 -->
+                <div class="mission-card completed">
+                    <div class="mission-header">
+                        <div class="mission-number">2</div>
+                        <div class="mission-content">
+                            <h6 class="mission-title">2ª Missão</h6>
+                            <div class="mission-progress">
+                                <div class="progress-icons">
+                                    <i class="fas fa-play-circle completed"></i>
+                                    <i class="fas fa-star completed"></i>
+                                    <i class="fas fa-star completed"></i>
+                                </div>
+                            </div>
+                            <div class="mission-items">
+                                <div class="mission-item completed">
+                                    <i class="fas fa-check-circle me-2"></i>1. Vídeo: Apresentação da missão
+                                </div>
+                                <div class="mission-item completed">
+                                    <i class="fas fa-check-circle me-2"></i>2. Curso: HTML: Fundamentos
+                                </div>
+                                <div class="mission-item completed">
+                                    <i class="fas fa-check-circle me-2"></i>3. Exercícios
+                                </div>
+                            </div>
+                            <div class="mission-footer">
+                                <div class="certificate-badge completed">
+                                    <i class="fas fa-certificate me-1"></i>Certificado
+                                    <span class="badge bg-info ms-1">ATIVO</span>
+                                </div>
+                                <div class="mission-status">
+                                    <span class="badge bg-success">PLATINADO</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mission 3 -->
+                <div class="mission-card active">
+                    <div class="mission-header">
+                        <div class="mission-number active">3</div>
+                        <div class="mission-content">
+                            <h6 class="mission-title">3ª Missão</h6>
+                            <div class="mission-info mb-2">
+                                <div class="mission-status-indicator">
+                                    <i class="fas fa-map-marker-alt text-warning me-1"></i>
+                                    <span class="text-warning small">Você está aqui</span>
+                                </div>
+                            </div>
+                            <div class="mission-progress">
+                                <div class="progress-icons">
+                                    <i class="fas fa-play-circle"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-code"></i>
+                                    <i class="fas fa-dumbbell"></i>
+                                    <i class="fas fa-calendar"></i>
+                                </div>
+                            </div>
+                            <div class="mission-items">
+                                <div class="mission-item completed">
+                                    <i class="fas fa-check-circle me-2"></i>1. Vídeo: Apresentação da missão
+                                </div>
+                                <div class="mission-item">
+                                    <i class="fas fa-circle me-2"></i>2. Curso: HTML: Tags básicas
+                                </div>
+                                <div class="mission-item">
+                                    <i class="fas fa-circle me-2"></i>3. Exercícios
+                                </div>
+                                <div class="mission-item">
+                                    <i class="fas fa-circle me-2"></i>4. Curso: HTML: Escrevendo suas primeiras códigos
+                                </div>
+                                <div class="mission-item">
+                                    <i class="fas fa-circle me-2"></i>5. Projeto: Construa seu primeiro documento HTML
+                                </div>
+                            </div>
+                            <div class="mission-footer">
+                                <div class="certificate-badge">
+                                    <i class="fas fa-certificate me-1"></i>Certificado
+                                    <span class="badge bg-secondary ms-1">OFFLINE</span>
+                                </div>
+                                <div class="mission-timer">
+                                    <div class="timer-info">
+                                        <span class="small text-secondary-custom">Tempo decorrido:</span>
+                                        <strong class="text-primary-custom">18 dias</strong>
+                                    </div>
+                                    <div class="timer-info">
+                                        <span class="small text-secondary-custom">Prazo sugerido:</span>
+                                        <strong class="text-primary-custom">15 dias</strong>
+                                    </div>
+                                    <i class="fas fa-stopwatch text-accent-green fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="course-actions mt-4">
+            <button class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-play me-2"></i>Continuar Missão
+            </button>
+            <button class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-eye me-2"></i>Ver Progresso Completo
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Mission interactions
+document.addEventListener('DOMContentLoaded', function() {
+    const missionCards = document.querySelectorAll('.mission-card');
+    
+    missionCards.forEach(card => {
+        card.addEventListener('click', function() {
+            if (!this.classList.contains('completed')) {
+                // Redirect to mission detail or start mission
+                console.log('Starting mission...');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
